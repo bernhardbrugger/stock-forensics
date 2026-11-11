@@ -35,11 +35,11 @@ First present a plan (files, configuration, CI workflow) and wait for my approva
 ### Step 1: Data model with provenance
 **Goal:** The foundation for "every number can be verified".
 
-- [ ] Pydantic model `Source` (provider, URL/endpoint, form type, accession number, retrieval timestamp)
-- [ ] Pydantic model `Value` (value or `None`, unit, period, `Source`, `note` explaining missing data)
-- [ ] Models for `Company` (ticker, CIK, name, SIC code, industry) and `Period` (fiscal year, quarter, start/end)
-- [ ] Helper `missing(reason)` for clearly explained gaps
-- [ ] Tests: JSON serialization, missing values, units
+- [x] Pydantic model `Source` (provider, URL/endpoint, form type, accession number, retrieval timestamp)
+- [x] Pydantic model `Value` (value or `None`, unit, period, `Source`, `note` explaining missing data)
+- [x] Models for `Company` (ticker, CIK, name, SIC code, industry) and `Period` (fiscal year, quarter, start/end)
+- [x] Helper `missing(reason)` for clearly explained gaps
+- [x] Tests: JSON serialization, missing values, units
 
 **Done when:** A `Value` can be saved to JSON and loaded back without loss, including its source.
 
