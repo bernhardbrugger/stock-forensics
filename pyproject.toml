@@ -9,7 +9,9 @@ authors = [
     { name = "bernhardbrugger", email = "bernhardbrugger@users.noreply.github.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2",
+]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Financial and Insurance Industry",
@@ -41,6 +43,12 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 strict = true
 python_version = "3.12"
 files = ["src"]
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
