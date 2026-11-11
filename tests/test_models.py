@@ -232,3 +232,50 @@ def test_models_are_immutable() -> None:
 def test_unknown_fields_are_rejected() -> None:
     with pytest.raises(ValidationError):
         Source.model_validate({"provider": "x", "retrieved_at": RETRIEVED, "bogus": 1})
+
+
+# --- inputs: provenance of computed values -----------------------------------------------
+
+
+def test_inputs_default_to_empty() -> None:
+    assert make_value().inputs == ()
+
+
+def test_value_with_inputs_roundtrips_including_nested_sources() -> None:
+    revenue = make_value(value=Decimal("1000"), unit=Unit.USD)
+    income = make_value(
+        value=Decimal("108"), source=make_source(xbrl_concept="us-gaap:NetIncomeLoss")
+    )
+    margin = make_value(
+        value=Decimal("0.108"),
+        unit=Unit.RATIO,
+        source=Source(provider="stock_forensics", retrieved_at=RETRIEVED),
+        note="net_income / revenue",
+        inputs=(income, revenue),
+    )
+    loaded = Value.model_validate_json(margin.model_dump_json())
+    assert loaded == margin
+    assert [i.value for i in loaded.inputs] == [Decimal("108"), Decimal("1000")]
+    assert loaded.inputs[0].source.xbrl_concept == "us-gaap:NetIncomeLoss"
+    assert loaded.inputs[0].source.accession_number == "0000320193-23-000106"
+
+
+def test_inputs_can_be_nested_more_than_one_level() -> None:
+    leaf = make_value(value=Decimal("1"))
+    middle = make_value(value=Decimal("2"), inputs=(leaf,))
+    top = make_value(value=Decimal("3"), inputs=(middle,))
+    assert Value.model_validate_json(top.model_dump_json()).inputs[0].inputs[0].value == 1
+
+
+def test_missing_helper_can_keep_the_available_inputs() -> None:
+    available = make_value(value=Decimal("5"))
+    gap = missing(
+        "cannot compute x / y: y not reported",
+        unit=Unit.RATIO,
+        period=make_period(),
+        source=make_source(),
+        inputs=(available,),
+    )
+    assert gap.value is None
+    assert gap.inputs == (available,)
+    assert Value.model_validate_json(gap.model_dump_json()) == gap
