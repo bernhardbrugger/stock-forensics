@@ -2,9 +2,9 @@
 
 > Work plan for Claude Code. **Exactly one step per session.** Every step has a goal, todos to tick off, a "Done when" check and a kickoff prompt to paste in.
 >
-> Flow per step: paste the prompt â†’ Claude Code proposes a plan â†’ you approve â†’ implementation + tests â†’ verification against real data â†’ you confirm â†’ commit with ticked todos.
+> Flow per step: paste the prompt → Claude Code proposes a plan → you approve → implementation + tests → verification against real data → you confirm → commit with ticked todos.
 
-**Progress:** Phase 1 (MVP) = steps 0â€“8 Â· Phase 2 (Extensions) = steps 9â€“12 Â· Phase 3 (Launch) = step 13
+**Progress:** Phase 1 (MVP) = steps 0–8 · Phase 2 (Extensions) = steps 9–12 · Phase 3 (Launch) = step 13
 
 ---
 
@@ -13,13 +13,13 @@
 ### Step 0: Project setup
 **Goal:** A clean, empty Python project with quality gates that everything else builds on.
 
-- [ ] Repo `stock-forensics` created (public, MIT license)
+- [x] Repo `stock-forensics` created (public, MIT license)
 - [x] `uv init` with `src/` layout, Python 3.12, package name `stock_forensics`
 - [x] Dev dependencies: `pytest`, `ruff`, `mypy`, `pytest-recording`
 - [x] `ruff` and `mypy --strict` configuration in `pyproject.toml`
 - [x] Folder structure as described in `CLAUDE.md`, with empty `__init__.py` files
 - [x] `.gitignore` (incl. `.env`, cache), `.env.example` with `SEC_USER_AGENT=`
-- [ ] GitHub Actions: lint + typecheck + tests on every push
+- [x] GitHub Actions: lint + typecheck + tests on every push
 - [x] Minimal README (one-line description, "work in progress", not-financial-advice note)
 - [x] One dummy test so CI is green
 
@@ -74,7 +74,7 @@ Plan first, including how you handle rate limiting, caching and test fixtures.
 ### Step 3: Financial statement normalization
 **Goal:** Turn raw XBRL facts into comparable balance sheet, income statement and cash flow statement.
 
-- [ ] Mapping table: standard field â†’ list of possible US-GAAP concepts in priority order (e.g. revenue: `Revenues`, `RevenueFromContractWithCustomerExcludingAssessedTax`, `SalesRevenueNet`)
+- [ ] Mapping table: standard field → list of possible US-GAAP concepts in priority order (e.g. revenue: `Revenues`, `RevenueFromContractWithCustomerExcludingAssessedTax`, `SalesRevenueNet`)
 - [ ] Cleanly separate annual (10-K, `FY`) and quarterly (10-Q) values; handle duplicates and later corrections (amendments) correctly
 - [ ] TTM calculation (last 4 quarters) where it makes sense
 - [ ] Result: a `Statements` object with a time series per field, each value with concept and accession number as source
@@ -95,7 +95,7 @@ Plan first: mapping strategy, handling of amendments and duplicates, TTM. At the
 
 - [ ] **Profitability:** gross, operating and net margin, ROE, ROA, ROIC
 - [ ] **Liquidity & leverage:** current ratio, quick ratio, debt/equity, interest coverage, net cash
-- [ ] **Cash flow quality:** free cash flow, FCF margin, cash conversion (operating cash flow Ã· net income)
+- [ ] **Cash flow quality:** free cash flow, FCF margin, cash conversion (operating cash flow ÷ net income)
 - [ ] **Growth:** revenue and earnings growth (YoY, 3-year CAGR), growth consistency
 - [ ] **Capital allocation:** payout ratio, buybacks, dilution (share count YoY), R&D ratio
 - [ ] Every metric returns a `Value` with the formula in `note` and its input values as source
@@ -114,12 +114,12 @@ Plan first.
 ### Step 5: Forensic scores
 **Goal:** The core of the project: a systematic search for warning signs in the numbers.
 
-- [ ] **Beneish M-Score** (8 variables: DSRI, GMI, AQI, SGI, DEPI, SGAI, TATA, LVGI; threshold âˆ’1.78)
+- [ ] **Beneish M-Score** (8 variables: DSRI, GMI, AQI, SGI, DEPI, SGAI, TATA, LVGI; threshold −1.78)
 - [ ] **Altman Z-Score** (original formula for manufacturers, Z'' variant for non-manufacturers; output the zones clearly)
 - [ ] **Piotroski F-Score** (9 criteria, each reported individually)
 - [ ] **Accruals ratio** (earnings quality)
 - [ ] Every score returns: total, all components, thresholds, interpretation, limitations
-- [ ] Industry exclusions: banks, insurers, REITs â†’ "not applicable" with reason (via SIC code)
+- [ ] Industry exclusions: banks, insurers, REITs → "not applicable" with reason (via SIC code)
 - [ ] Tests: one fully hand-calculated example per score, with the calculation documented as a comment in the test
 
 **Done when:** All three scores are plausible for AAPL and MSFT, all components are visible in the output, and a bank is correctly marked "not applicable".
@@ -169,7 +169,7 @@ Plan first. Important: clearly separate real open-market purchases from grants a
 
 ---
 
-### Step 8: Report + CLI (MVP done ðŸŽ‰)
+### Step 8: Report + CLI (MVP done 🎉)
 **Goal:** One command, one report that people actually enjoy reading.
 
 - [ ] Pipeline `analyze(ticker) -> ForensicReport` (one JSON object with everything)
@@ -229,7 +229,7 @@ Step 10: MCP server (see ROADMAP.md). Use the official MCP Python SDK (FastMCP).
 
 - [ ] Optional extra for Anthropic or OpenAI, key from the environment
 - [ ] The LLM only receives the finished report JSON and writes the summary, the strongest warning signs and open questions
-- [ ] **Number guard:** every number in the LLM text is automatically checked against the JSON; unknown numbers â†’ text is rejected and regenerated, or the passage is flagged
+- [ ] **Number guard:** every number in the LLM text is automatically checked against the JSON; unknown numbers → text is rejected and regenerated, or the passage is flagged
 - [ ] Without a key: the section is omitted, everything else unchanged
 - [ ] Tests for the number guard (incl. deliberately wrong numbers)
 
@@ -263,7 +263,7 @@ Step 12: news & earnings calls (see ROADMAP.md). Use my DeepStockResearch_FINAL 
 **Goal:** The repo convinces within 10 seconds.
 
 - [ ] README: one-line pitch, demo GIF at the top, quickstart in 3 commands, sample report, methodology of the scores with sources, limitations, not financial advice
-- [ ] Sample reports for 2â€“3 well-known companies in `examples/` (or as a GitHub Pages demo)
+- [ ] Sample reports for 2–3 well-known companies in `examples/` (or as a GitHub Pages demo)
 - [ ] `docs/methodology.md`: every formula, every threshold, every source
 - [ ] PyPI release (`uv build`, `uv publish`) so that `pipx install stock-forensics` works
 - [ ] GitHub: topics (`sec-edgar`, `financial-analysis`, `forensic-accounting`, `mcp-server`, `beneish`, `altman-z-score`, `piotroski`), social preview image, description
