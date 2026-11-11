@@ -33,6 +33,7 @@ Live demo: `uv run python scripts/demo_sec_edgar.py AAPL` (runs everything twice
 | `ticker_to_cik(ticker)` | `Company` (ticker, CIK, name). Case-insensitive, `BRK.B` also finds `BRK-B`. Unknown ticker raises `TickerNotFoundError`. |
 | `get_submissions(cik)` | `Submissions`: name, SIC code and industry, fiscal year end, and `filings` with form, dates, accession number, 8-K `items` (e.g. `("4.01", "9.01")`) and a link to the document. `filings_of_form("10-K", include_amendments=False)` filters. |
 | `get_company_facts(cik)` | `CompanyFacts`: taxonomy, then concept, then unit, then `Fact` (`val` as `Decimal`, `start`, `end`, `fy`, `fp`, `form`, `accn`, `filed`, `frame`). |
+| `get_document(url)` | Raw bytes of a filing document (for example `Filing.document_url` of a 10-K). Only `https://www.sec.gov/Archives/edgar/data/...` URLs are accepted. Cached without expiry, because filed documents never change. `providers/ixbrl.py` reads the numbers such a document prints. |
 
 Every result carries a `Source` (provider, endpoint, `retrieved_at`).
 
