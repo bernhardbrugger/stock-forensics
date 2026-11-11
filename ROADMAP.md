@@ -53,14 +53,14 @@ Plan first: which models, which fields, which tests. Then wait for approval.
 ### Step 2: SEC EDGAR provider
 **Goal:** Reliable, polite access to SEC data with caching.
 
-- [ ] HTTP client with `User-Agent` from `SEC_USER_AGENT` (clear error if not set)
-- [ ] Rate limiter (max. 10 requests/second) and retry with backoff on 429/5xx
-- [ ] Disk cache with configurable TTL
-- [ ] `ticker_to_cik()` via `company_tickers.json`
-- [ ] `get_submissions(cik)` for the filing index incl. 8-K items
-- [ ] `get_company_facts(cik)` for all XBRL facts
-- [ ] Recorded responses as test fixtures (no live calls in CI)
-- [ ] Tests: unknown ticker, rate-limit behavior, cache hit
+- [x] HTTP client with `User-Agent` from `SEC_USER_AGENT` (clear error if not set)
+- [x] Rate limiter (max. 10 requests/second) and retry with backoff on 429/5xx
+- [x] Disk cache with configurable TTL
+- [x] `ticker_to_cik()` via `company_tickers.json`
+- [x] `get_submissions(cik)` for the filing index incl. 8-K items
+- [x] `get_company_facts(cik)` for all XBRL facts
+- [x] Recorded responses as test fixtures (no live calls in CI)
+- [x] Tests: unknown ticker, rate-limit behavior, cache hit
 
 **Done when:** A short script returns CIK, name and the list of recent 10-Ks for AAPL, and the second call is served from cache.
 
