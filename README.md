@@ -8,6 +8,7 @@ Forensic check for US stocks: accounting red flags, forensic scores (Beneish, Al
 
 - [Data model](docs/data-model.md): every number is a `Value` with unit, period and source
 - [SEC EDGAR provider](docs/sec-edgar.md): setup, usage, rate limit, cache
+- [Statement normalization](docs/normalization.md): standard fields, quarters, TTM, reconciliation with the 10-K
 
 ## Not financial advice
 

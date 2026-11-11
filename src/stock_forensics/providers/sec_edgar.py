@@ -36,6 +36,7 @@ PROVIDER = "sec_edgar"
 TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
+ARCHIVES_PREFIX = "https://www.sec.gov/Archives/edgar/data/"
 
 _MAX_RETRY_AFTER_SECONDS = 60.0
 
@@ -157,6 +158,15 @@ class SecEdgarClient:
         data, source = self._get_json(COMPANY_FACTS_URL.format(cik=_pad(cik)))
         return parse_company_facts(data, source)
 
+    def get_document(self, url: str) -> bytes:
+        """The raw bytes of a filing document, e.g. ``Filing.document_url`` of a 10-K.
+
+        Filed documents never change, so they are cached without expiry.
+        """
+        if not url.startswith(ARCHIVES_PREFIX):
+            raise ValueError(f"Not an SEC filing document URL: {url}")
+        return self._fetch(url, allow_cache=self._use_cache, forever=True).body
+
     # --- internals ----------------------------------------------------------------------
 
     def _get_json(self, url: str) -> tuple[dict[str, Any], Source]:
@@ -184,9 +194,9 @@ class SecEdgarClient:
             raise ValueError("expected a JSON object")
         return data
 
-    def _fetch(self, url: str, *, allow_cache: bool) -> CacheEntry:
+    def _fetch(self, url: str, *, allow_cache: bool, forever: bool = False) -> CacheEntry:
         if allow_cache:
-            cached = self._cache.get(url, self._ttl)
+            cached = self._cache.get(url, None if forever else self._ttl)
             if cached is not None:
                 return cached
         return self._cache.put(url, self._download(url))

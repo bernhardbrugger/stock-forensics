@@ -74,12 +74,12 @@ Plan first, including how you handle rate limiting, caching and test fixtures.
 ### Step 3: Financial statement normalization
 **Goal:** Turn raw XBRL facts into comparable balance sheet, income statement and cash flow statement.
 
-- [ ] Mapping table: standard field → list of possible US-GAAP concepts in priority order (e.g. revenue: `Revenues`, `RevenueFromContractWithCustomerExcludingAssessedTax`, `SalesRevenueNet`)
-- [ ] Cleanly separate annual (10-K, `FY`) and quarterly (10-Q) values; handle duplicates and later corrections (amendments) correctly
-- [ ] TTM calculation (last 4 quarters) where it makes sense
-- [ ] Result: a `Statements` object with a time series per field, each value with concept and accession number as source
-- [ ] Tests with fixtures from 3 companies that use different concepts
-- [ ] Reconciliation: revenue, net income and total assets for AAPL and MSFT checked against the actual 10-K
+- [x] Mapping table: standard field → list of possible US-GAAP concepts in priority order (e.g. revenue: `Revenues`, `RevenueFromContractWithCustomerExcludingAssessedTax`, `SalesRevenueNet`)
+- [x] Cleanly separate annual (10-K, `FY`) and quarterly (10-Q) values; handle duplicates and later corrections (amendments) correctly
+- [x] TTM calculation (last 4 quarters) where it makes sense
+- [x] Result: a `Statements` object with a time series per field, each value with concept and accession number as source
+- [x] Tests with fixtures from 3 companies that use different concepts
+- [x] Reconciliation: revenue, net income and total assets for AAPL and MSFT checked against the actual 10-K
 
 **Done when:** The core figures of the last 3 fiscal years for AAPL and MSFT match the 10-Ks exactly.
 
