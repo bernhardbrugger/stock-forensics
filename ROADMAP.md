@@ -134,13 +134,13 @@ Plan first. For each score: formula, source of the formula, thresholds, limitati
 ### Step 6: Red flags from SEC filings
 **Goal:** Warning signs that are not in the numbers but in the filings.
 
-- [ ] **Auditor change:** 8-K with Item 4.01
-- [ ] **Restatements:** 8-K with Item 4.02 (previously issued financial statements no longer reliable)
-- [ ] **Late filings:** NT 10-K / NT 10-Q
-- [ ] **Going-concern warnings** in the 10-K (via EDGAR full-text search or text search in the document; check feasibility first)
-- [ ] **Frequent 10-K/A amendments**
-- [ ] Every flag with date, form type and link to the original filing
-- [ ] Tests with fixtures (at least one real case per flag type)
+- [x] **Auditor change:** 8-K with Item 4.01
+- [x] **Restatements:** 8-K with Item 4.02 (previously issued financial statements no longer reliable)
+- [x] **Late filings:** NT 10-K / NT 10-Q
+- [x] **Going-concern warnings** in the 10-K (via EDGAR full-text search or text search in the document; check feasibility first)
+- [x] **Frequent 10-K/A amendments**
+- [x] Every flag with date, form type and link to the original filing
+- [x] Tests with fixtures (at least one real case per flag type)
 
 **Done when:** For a company with a known auditor change or restatement, the flag appears including a link to the filing.
 
