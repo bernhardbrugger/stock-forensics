@@ -10,6 +10,7 @@ Forensic check for US stocks: accounting red flags, forensic scores (Beneish, Al
 - [SEC EDGAR provider](docs/sec-edgar.md): setup, usage, rate limit, cache
 - [Statement normalization](docs/normalization.md): standard fields, quarters, TTM, reconciliation with the 10-K
 - [Metrics](docs/metrics.md): 25 ratios with formulas, inputs and explicit gaps
+- [Forensic scores](docs/scores.md): Beneish, Altman, Piotroski, accruals ratio, with thresholds and limitations
 
 ## Not financial advice
 

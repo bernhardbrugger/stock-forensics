@@ -51,7 +51,7 @@ class Ref:
 class MetricSpec:
     name: str
     label: str
-    group: Group
+    group: Group | None  # None for internal components (for example of the forensic scores)
     unit: Unit
     formula: str
     refs: tuple[Ref, ...] = ()
@@ -100,7 +100,7 @@ def metric_period(statements: Statements, fiscal_year: int) -> Period:
     return statements.series["revenue"].annual[fiscal_year].period
 
 
-def _computed_source(statements: Statements) -> Source:
+def computed_source(statements: Statements) -> Source:
     # The timestamp is that of the input data, so the result stays deterministic.
     return Source(provider=PROVIDER, retrieved_at=statements.source.retrieved_at)
 
@@ -140,7 +140,7 @@ def make_value(
         value=number,
         unit=spec.unit,
         period=metric_period(statements, fiscal_year),
-        source=_computed_source(statements),
+        source=computed_source(statements),
         note=note,
         inputs=tuple(inputs),
     )
@@ -157,7 +157,7 @@ def make_missing(
         f"cannot compute {spec.formula}: {reason}",
         unit=spec.unit,
         period=metric_period(statements, fiscal_year),
-        source=_computed_source(statements),
+        source=computed_source(statements),
         inputs=tuple(inputs),
     )
 
