@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ r.ticker }} forensic report</title>
+<style>
+:root {
+  --paper: #f6f2ea; --card: #fffdf8; --ink: #1d1b17; --muted: #6b655a; --rule: #ddd5c4;
+  --green: #2f7d4f; --green-bg: #e1f0e6; --yellow: #9a6a00; --yellow-bg: #fbefc9;
+  --red: #b3261e; --red-bg: #f9dedb; --gray: #6b655a; --gray-bg: #ebe6da;
+  --info: #2c5d8a; --info-bg: #e0ebf5; --link: #1f4f8a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #15140f; --card: #1e1c16; --ink: #ece7da; --muted: #a39c8b; --rule: #38342a;
+    --green: #6cc18b; --green-bg: #1b3225; --yellow: #e5b84a; --yellow-bg: #3a2e0f;
+    --red: #f08178; --red-bg: #3d1f1c; --gray: #a39c8b; --gray-bg: #2a2820;
+    --info: #7fb1e0; --info-bg: #1c2d3e; --link: #8dbbf0;
+  }
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  margin: 0 auto; max-width: 62rem; padding: 2rem 1.25rem 4rem;
+  color: var(--ink); font: 16px/1.55 var(--sans);
+}
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.2; }
+h1 { font-size: 2.1rem; margin: 0; }
+h2 { font-size: 1.45rem; margin: 3rem 0 .25rem; padding-top: 1rem; border-top: 2px solid var(--ink); }
+h3 { font-size: 1.1rem; margin: 0 0 .25rem; }
+a { color: var(--link); }
+p { margin: .4rem 0; }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+.mono { font-family: var(--mono); }
+header .meta { color: var(--muted); font-size: .9rem; margin-top: .35rem; }
+header .eyebrow { font: 600 .75rem var(--sans); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); }
+.verdict {
+  display: flex; gap: 1.1rem; align-items: center; margin: 1.5rem 0 1rem; padding: 1.1rem 1.25rem;
+  background: var(--card); border: 1px solid var(--rule); border-left-width: 8px; border-radius: 4px;
+}
+.verdict.green { border-left-color: var(--green); } .verdict.yellow { border-left-color: var(--yellow); }
+.verdict.red { border-left-color: var(--red); } .verdict.gray { border-left-color: var(--gray); }
+.verdict .headline { font: 600 1.25rem/1.3 var(--serif); margin: .3rem 0 0; }
+.badge {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .1rem .6rem .1rem .45rem;
+  border-radius: 999px; font: 600 .8rem var(--sans); white-space: nowrap;
+}
+.badge .dot { width: .7rem; height: .7rem; border-radius: 50%; background: currentColor; }
+.badge.green { color: var(--green); background: var(--green-bg); }
+.badge.yellow { color: var(--yellow); background: var(--yellow-bg); }
+.badge.red { color: var(--red); background: var(--red-bg); }
+.badge.gray { color: var(--gray); background: var(--gray-bg); }
+.badge.info { color: var(--info); background: var(--info-bg); }
+.badge.big { font-size: 1rem; padding: .25rem .9rem .25rem .65rem; }
+.badge.big .dot { width: 1rem; height: 1rem; }
+.areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: .75rem; }
+.area { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: .8rem .9rem; }
+.area .name { font: 600 .75rem var(--sans); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: .35rem; }
+.area .what { font-size: .85rem; margin-top: .45rem; color: var(--muted); }
+ul.reasons { margin: .5rem 0 0; padding-left: 1.2rem; }
+ul.reasons li { margin: .25rem 0; }
+.notice { background: var(--card); border: 1px dashed var(--muted); border-radius: 4px;
+  padding: .7rem .9rem; margin: .75rem 0; }
+.notice.error { border-color: var(--red); }
+.disclaimer { font-weight: 600; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
+  padding: 1rem 1.1rem; margin: .9rem 0; }
+.card .top { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: baseline;
+  justify-content: space-between; }
+.total { font: 600 1.6rem var(--mono); }
+details { margin-top: .6rem; }
+summary { cursor: pointer; color: var(--link); font-size: .9rem; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: .5rem 0; }
+th, td { padding: .35rem .5rem; border-bottom: 1px solid var(--rule); text-align: left;
+  vertical-align: top; }
+th { font: 600 .75rem var(--sans); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); }
+td.num, th.num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+td.missing { color: var(--muted); }
+td[title] { cursor: help; }
+.scroll { overflow-x: auto; }
+blockquote { margin: .4rem 0; padding: .1rem .8rem; border-left: 3px solid var(--rule);
+  color: var(--muted); font-size: .9rem; }
+.flag { border-top: 1px solid var(--rule); padding: .8rem 0; }
+.flag:first-of-type { border-top: 0; }
+.kv { display: flex; flex-wrap: wrap; gap: .4rem 2rem; margin: .5rem 0; }
+.kv div { min-width: 8rem; }
+.kv .k { font: 600 .7rem var(--sans); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); display: block; }
+.kv .v { font: 600 1.15rem var(--mono); display: block; }
+.kv .small { display: block; }
+footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); }
+@media (max-width: 40rem) { .verdict { flex-direction: column; align-items: flex-start; } h1 { font-size: 1.6rem; } }
+@media print { html { background: #fff; } details > * { display: block; } }
+</style>
+</head>
+<body>
+{% macro badge(light, big=false) -%}
+<span class="badge {{ light }}{{ ' big' if big else '' }}"><span class="dot" aria-hidden="true"></span>{{ light | label }}</span>
+{%- endmacro %}
+{% macro table(t) -%}
+<div class="scroll">
+<table>
+<caption class="muted small" style="text-align:left;caption-side:top">{{ t.title }}</caption>
+<thead><tr><th scope="col">Item</th>{% for year in t.years %}<th scope="col" class="num">FY{{ year }}</th>{% endfor %}</tr></thead>
+<tbody>
+{% for row in t.rows %}
+<tr><th scope="row" style="text-transform:none;letter-spacing:0;font:inherit;color:inherit"{% if row.formula %} title="{{ row.formula }}"{% endif %}>{{ row.label }}</th>
+{% for cell in row.cells %}<td class="num{{ ' missing' if cell.missing else '' }}"{% if cell.tooltip %} title="{{ cell.tooltip }}"{% endif %}>{{ cell.text }}</td>{% endfor %}</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{%- endmacro %}
+
+<header>
+  <div class="eyebrow">Forensic report</div>
+  <h1>{{ r.company_name }} <span class="muted">({{ r.ticker }})</span></h1>
+  <div class="meta">
+    CIK {{ r.cik }}{% if r.industry %} &middot; {{ r.industry }}{% if r.sic_code %} (SIC {{ r.sic_code }}){% endif %}{% endif %}
+    &middot; as of {{ r.as_of | iso }} &middot; SEC data retrieved {{ r.retrieved_at.strftime('%Y-%m-%d %H:%M UTC') }}
+    &middot; stock-forensics {{ r.version }}
+  </div>
+</header>
+
+<section class="verdict {{ r.summary.overall }}" aria-label="Overall result">
+  <div>{{ badge(r.summary.overall, true) }}</div>
+  <div>
+    <div class="muted small">Overall: the worst light of the forensic scores and the filing red flags</div>
+    <p class="headline">{{ r.summary.headline }}</p>
+  </div>
+</section>
+
+<p class="notice disclaimer">{{ r.disclaimer }}</p>
+
+<div class="areas">
+{% for area in r.summary.areas %}
+  <div class="area">
+    <div class="name">{{ area.label }}</div>
+    {{ badge(area.light) }}
+    <div class="what">{{ area.summary }}</div>
+  </div>
+{% endfor %}
+</div>
+
+{% set shown = r.summary.reasons | rejectattr('light', 'equalto', 'info') | list %}
+{% if shown %}
+<h3 style="margin-top:1.5rem">What to look at</h3>
+<ul class="reasons">
+{% for reason in shown %}
+  <li>{{ badge(reason.light) }} {{ reason.text }} <a class="small" href="#{{ reason.section }}">details</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if r.errors %}
+<div class="notice error" role="alert">
+  <strong>Some parts of this report are missing</strong>
+  <ul>{% for section, why in r.errors.items() %}<li><span class="mono">{{ section }}</span>: {{ why }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<h2 id="scores">Forensic scores</h2>
+<p class="muted">Four standard screens, computed from the latest annual report. A score is a prompt to look closer, not a verdict.</p>
+{% if not scores %}
+<div class="notice">Not available{% if r.errors.get('scores') %}: {{ r.errors['scores'] }}{% endif %}.</div>
+{% endif %}
+{% for s in scores %}
+<div class="card" id="score-{{ s.name }}">
+  <div class="top">
+    <h3>{{ s.label }} <span class="muted small">FY{{ s.fiscal_year }}</span></h3>
+    <div>{{ badge(s.light) }}</div>
+  </div>
+  {% if s.applicable %}
+  <div class="total" {% if s.tooltip %}title="{{ s.tooltip }}"{% endif %}>{{ s.total }} <span class="small muted" style="font-family:var(--sans)">{{ s.zone }}</span></div>
+  <p>{{ s.interpretation }}</p>
+  {% else %}
+  <p><strong>Not applicable.</strong> {{ s.reason }}</p>
+  {% endif %}
+  <details>
+    <summary>How it is computed, inputs and limits</summary>
+    <p class="small"><strong>Formula:</strong> {{ s.formula }}{% if s.constant %} (constant {{ s.constant }}){% endif %}<br>
+    <strong>Reference:</strong> {{ s.reference }}</p>
+    {% if s.components %}
+    <div class="scroll"><table>
+      <thead><tr><th>Input</th><th class="num">Value</th><th class="num">Weight</th><th class="num">Contribution</th><th>Passed</th></tr></thead>
+      <tbody>
+      {% for c in s.components %}
+      <tr><td>{{ c.label }}</td><td class="num" {% if c.tooltip %}title="{{ c.tooltip }}"{% endif %}>{{ c.value }}</td><td class="num">{{ c.weight }}</td><td class="num">{{ c.contribution }}</td><td>{{ c.passed }}</td></tr>
+      {% endfor %}
+      </tbody></table></div>
+    {% endif %}
+    {% if s.thresholds %}
+    <p class="small"><strong>Thresholds:</strong></p>
+    <ul class="small">{% for label, value, meaning in s.thresholds %}<li>{{ label }}: <span class="mono">{{ value }}</span> &ndash; {{ meaning }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if s.limitations %}
+    <p class="small"><strong>Known limitations:</strong></p>
+    <ul class="small">{% for note in s.limitations %}<li>{{ note }}</li>{% endfor %}</ul>
+    {% endif %}
+  </details>
+</div>
+{% endfor %}
+
+<h2 id="red-flags">Red flags in SEC filings</h2>
+{% if r.red_flags is none %}
+<div class="notice">Not available{% if r.errors.get('red_flags') %}: {{ r.errors['red_flags'] }}{% endif %}.</div>
+{% else %}
+<p class="muted">Events and statements in filings from {{ r.red_flags.since | iso }} to {{ r.red_flags.as_of | iso }}: auditor changes, restatements, late filings, going-concern doubt, substantive 10-K amendments. The light looks at the last three years.</p>
+{% if not r.red_flags.flags %}
+<div class="card"><p>{{ badge('green') }} No red flags found in the examined filings.</p></div>
+{% endif %}
+{% set severity_light = {'high': 'red', 'medium': 'yellow', 'low': 'gray'} %}
+{% if r.red_flags.flags %}
+<div class="card">
+{% for f in r.red_flags.flags %}
+  <div class="flag">
+    <div class="top">
+      <h3>{{ f.title }}</h3>
+      <div><span class="badge {{ severity_light[f.severity.value] }}"><span class="dot" aria-hidden="true"></span>{{ f.severity.value | capitalize }} severity</span></div>
+    </div>
+    <div class="muted small">Filed {{ f.filing_date | iso }} &middot; {{ f.form }}{% if f.period %} &middot; period {{ f.period | iso }}{% endif %}{% if f.accession_number %} &middot; {{ f.accession_number }}{% endif %}{% if f.document_url %} &middot; <a href="{{ f.document_url }}" rel="noopener">original filing</a>{% endif %}</div>
+    <p>{{ f.detail }}</p>
+    {% for quote in f.evidence %}<blockquote>{{ quote }}</blockquote>{% endfor %}
+  </div>
+{% endfor %}
+</div>
+{% endif %}
+<details open>
+  <summary>What was examined</summary>
+  <div class="scroll"><table>
+    <thead><tr><th>Check</th><th class="num">Filings examined</th><th class="num">Flagged</th><th>Notes</th></tr></thead>
+    <tbody>
+    {% for c in r.red_flags.coverage %}
+    <tr><td>{{ c.kind.value | replace('_', ' ') }}</td><td class="num">{{ c.examined }}</td><td class="num">{{ c.flagged }}</td><td>{{ c.notes | join('; ') }}</td></tr>
+    {% endfor %}
+    </tbody></table></div>
+</details>
+{% endif %}
+
+<h2 id="insiders">Insider activity (Form 4)</h2>
+{% if insider is none %}
+<div class="notice">Not available{% if r.errors.get('insiders') %}: {{ r.errors['insiders'] }}{% endif %}.</div>
+{% else %}
+{% set a = insider.activity %}
+<p class="muted">Open-market purchases and sales by officers, directors and 10% owners from {{ a.since | iso }} to {{ a.as_of | iso }}. For information only: sales are often planned diversification, and this report draws no conclusion from them.</p>
+<div class="kv">
+  <div><span class="k">Purchases</span><span class="v">{{ insider.purchases }}</span><span class="small muted">{{ a.totals.purchases.count }} trades, {{ a.totals.buyers }} insiders</span></div>
+  <div><span class="k">Sales</span><span class="v">{{ insider.sales }}</span><span class="small muted">{{ a.totals.sales.count }} trades, {{ a.totals.sellers }} insiders</span></div>
+  <div><span class="k">Under 10b5-1 plans</span><span class="v">{{ insider.planned_sales }}</span><span class="small muted">{{ a.totals.planned_sales.count }} trades</span></div>
+  <div><span class="k">Net (buys &minus; sells)</span><span class="v">{{ insider.net }}</span></div>
+</div>
+{% for cluster in a.clusters %}
+<div class="notice"><span class="badge info"><span class="dot" aria-hidden="true"></span>Cluster buy</span> {{ cluster.insiders | length }} insiders bought between {{ cluster.start | iso }} and {{ cluster.end | iso }}: {{ cluster.insiders | join(', ') }} ({{ cluster.amount | val }}).</div>
+{% endfor %}
+{% if insider.people %}
+<div class="scroll"><table>
+  <caption class="muted small" style="text-align:left;caption-side:top">By person (largest open-market amounts first)</caption>
+  <thead><tr><th>Insider</th><th>Role</th><th class="num">Bought</th><th class="num">Sold</th><th class="num">Net</th></tr></thead>
+  <tbody>
+  {% for p in insider.people %}
+  <tr><td>{{ p.name }}</td><td>{{ p.officer_title or p.role.value | replace('_', ' ') }}</td><td class="num">{{ p.purchases.amount | val }}</td><td class="num">{{ p.sales.amount | val }}</td><td class="num">{{ p.net_amount | val }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% if insider.more_people %}<p class="small muted">{{ insider.more_people }} more people are in the JSON export.</p>{% endif %}
+{% endif %}
+{% if insider.transactions %}
+<div class="scroll"><table>
+  <caption class="muted small" style="text-align:left;caption-side:top">Open-market transactions (newest first)</caption>
+  <thead><tr><th>Date</th><th>Insider</th><th>Type</th><th class="num">Shares</th><th class="num">Price</th><th class="num">Amount</th><th>Form 4</th></tr></thead>
+  <tbody>
+  {% for t in insider.transactions %}
+  <tr><td class="mono">{{ t.transaction_date | iso }}</td><td>{{ t.owner_name }}</td><td>{{ t.category.value }}{% if t.under_10b5_1 %} <span class="small muted">(10b5-1 plan)</span>{% endif %}</td><td class="num">{{ t.shares | val }}</td><td class="num">{{ t.price | val }}</td><td class="num">{{ t.amount | val }}</td><td>{% if t.document_url %}<a href="{{ t.document_url }}" rel="noopener">{{ t.accession_number }}</a>{% else %}{{ t.accession_number }}{% endif %}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% if insider.more_transactions %}<p class="small muted">{{ insider.more_transactions }} more open-market transactions are in the JSON export.</p>{% endif %}
+{% else %}
+<p>No open-market purchases or sales in this period.</p>
+{% endif %}
+{% if insider.not_counted %}
+<p class="small muted">Not counted as buying or selling: {% for kind, n in insider.not_counted.items() %}{{ n }} {{ kind }}{{ ', ' if not loop.last else '' }}{% endfor %} (grants, option exercises, tax withholding, gifts).</p>
+{% endif %}
+{% if a.coverage.notes or a.coverage.unreadable %}
+<p class="small muted">Coverage: {{ a.coverage.filings_read }} of {{ a.coverage.filings_listed }} listed Form 4 filings read{% if a.coverage.unreadable %}; {{ a.coverage.unreadable | length }} could not be read{% endif %}. {{ a.coverage.notes | join(' ') }}</p>
+{% endif %}
+{% endif %}
+
+<h2 id="metrics">Key figures</h2>
+<p class="muted">Computed from the reported statements. Hover over a figure for the formula, inputs and filing. &ldquo;n/a&rdquo; means it could not be computed; the tooltip says why.</p>
+{% if financials %}{{ table(financials) }}{% endif %}
+{% for t in metric_tables %}{{ table(t) }}{% endfor %}
+{% if not financials and not metric_tables %}
+<div class="notice">Not available{% if r.errors.get('statements') %}: {{ r.errors['statements'] }}{% endif %}.</div>
+{% endif %}
+
+<h2 id="sources">Sources</h2>
+<p class="muted">The filings the statement figures and red flags are taken from. All data comes from SEC EDGAR.</p>
+{% if r.sources %}
+<div class="scroll"><table>
+  <thead><tr><th>Filing</th><th>Form</th><th>Period end</th><th>Used for</th></tr></thead>
+  <tbody>
+  {% for s in r.sources %}
+  <tr><td><a href="{{ s.url }}" rel="noopener">{{ s.accession_number }}</a></td><td>{{ s.form_type or '' }}</td><td class="mono">{{ s.period_end | iso if s.period_end else '' }}</td><td>{{ s.used_for | join(', ') }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}
+<p>No filings to list.</p>
+{% endif %}
+
+<footer>
+  <p class="disclaimer">{{ r.disclaimer }}</p>
+  <p class="small muted">Generated by stock-forensics {{ r.version }}. Every number is computed by code from SEC filings; nothing here is written by a language model.</p>
+</footer>
+</body>
+</html>

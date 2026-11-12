@@ -2,7 +2,18 @@
 
 Forensic check for US stocks: accounting red flags, forensic scores (Beneish, Altman, Piotroski), SEC filing flags and insider activity. Every number carries its source.
 
-> **Work in progress.** Nothing here is usable yet. See [ROADMAP.md](ROADMAP.md) for the plan.
+> **Work in progress.** The core check works (steps 0 to 8); market data, the MCP server and the optional narrative layer are still planned. See [ROADMAP.md](ROADMAP.md).
+
+## Quickstart
+
+```bash
+uv sync
+export SEC_USER_AGENT="stock-forensics you@example.com"   # the SEC requires contact info
+uv run forensics AAPL                                     # writes AAPL-forensics.html
+```
+
+No API key is needed, all data comes from SEC EDGAR. Other formats: `--format md` or `--format json`;
+see [Report and CLI](docs/report.md) for all options.
 
 ## Docs
 
@@ -13,6 +24,7 @@ Forensic check for US stocks: accounting red flags, forensic scores (Beneish, Al
 - [Forensic scores](docs/scores.md): Beneish, Altman, Piotroski, accruals ratio, with thresholds and limitations
 - [Red flags from SEC filings](docs/red-flags.md): auditor changes, restatements, late filings, going concern, amendments
 - [Insider activity](docs/insiders.md): Form 4 purchases and sales, 10b5-1 plans, cluster buys
+- [Report and CLI](docs/report.md): `forensics AAPL`, traffic-light rules, HTML/Markdown/JSON output
 
 ## Not financial advice
 

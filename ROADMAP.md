@@ -172,14 +172,14 @@ Plan first. Important: clearly separate real open-market purchases from grants a
 ### Step 8: Report + CLI (MVP done 🎉)
 **Goal:** One command, one report that people actually enjoy reading.
 
-- [ ] Pipeline `analyze(ticker) -> ForensicReport` (one JSON object with everything)
-- [ ] HTML report as a single file: summary with traffic lights (green/yellow/red) at the top, then scores, metrics, red flags, insiders, list of sources
-- [ ] Every number in the report links to or names its source
-- [ ] Markdown and JSON export
-- [ ] CLI: `forensics AAPL`, `--format html|md|json`, `--out`, `--no-cache`
-- [ ] Readable progress output with `rich`
-- [ ] Not-financial-advice note in the report
-- [ ] End-to-end test with fixtures
+- [x] Pipeline `analyze(ticker) -> ForensicReport` (one JSON object with everything)
+- [x] HTML report as a single file: summary with traffic lights (green/yellow/red) at the top, then scores, metrics, red flags, insiders, list of sources
+- [x] Every number in the report links to or names its source
+- [x] Markdown and JSON export
+- [x] CLI: `forensics AAPL`, `--format html|md|json`, `--out`, `--no-cache`
+- [x] Readable progress output with `rich`
+- [x] Not-financial-advice note in the report
+- [x] End-to-end test with fixtures
 
 **Done when:** `uv run forensics AAPL` produces an HTML report in under a minute that you understand without any explanation.
 
