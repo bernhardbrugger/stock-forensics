@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 import os
+import re
 from pathlib import Path
 
 import httpx
@@ -17,6 +18,15 @@ from stock_forensics.report import DISCLAIMER, ForensicReport, analyze
 from tests.report_fixtures import AS_OF, FakeSec, make_client
 
 runner = CliRunner()
+ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
+
+
+@pytest.fixture(autouse=True)
+def plain_terminal(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The tests look at plain text; a colour-forcing environment (CI) must not change it."""
+    for name in ("FORCE_COLOR", "TTY_COMPATIBLE", "TTY_INTERACTIVE"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("NO_COLOR", "1")
 
 
 @pytest.fixture
@@ -166,8 +176,10 @@ def test_version_and_help(fake_sec: dict[str, object]) -> None:
     assert version.exit_code == 0 and version.stdout.startswith("stock-forensics ")
     help_ = runner.invoke(app, ["--help"])
     assert help_.exit_code == 0
+    # CI forces colours: drop ANSI codes and line wrapping before looking for words
+    text = " ".join(ANSI.sub("", help_.stdout).split())
     for word in ("--format", "--out", "--no-cache", "Not financial advice"):
-        assert word in help_.stdout
+        assert word in text
 
 
 def test_default_output_path() -> None:
