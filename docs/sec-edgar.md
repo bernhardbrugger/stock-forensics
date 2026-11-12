@@ -33,6 +33,7 @@ Live demo: `uv run python scripts/demo_sec_edgar.py AAPL` (runs everything twice
 | `ticker_to_cik(ticker)` | `Company` (ticker, CIK, name). Case-insensitive, `BRK.B` also finds `BRK-B`. Unknown ticker raises `TickerNotFoundError`. |
 | `get_submissions(cik)` | `Submissions`: name, SIC code and industry, fiscal year end, and `filings` with form, dates, accession number, 8-K `items` (e.g. `("4.01", "9.01")`) and a link to the document. `filings_of_form("10-K", include_amendments=False)` filters. |
 | `get_company_facts(cik)` | `CompanyFacts`: taxonomy, then concept, then unit, then `Fact` (`val` as `Decimal`, `start`, `end`, `fy`, `fp`, `form`, `accn`, `filed`, `frame`). |
+| `get_filing_history(cik, since=None)` | `Submissions` like `get_submissions`, plus the older index pages needed to reach back to `since` (all pages if `None`), merged newest first. Pages that were not needed stay in `older_pages` (name and date range). |
 | `get_document(url)` | Raw bytes of a filing document (for example `Filing.document_url` of a 10-K). Only `https://www.sec.gov/Archives/edgar/data/...` URLs are accepted. Cached without expiry, because filed documents never change. `providers/ixbrl.py` reads the numbers such a document prints. |
 
 Every result carries a `Source` (provider, endpoint, `retrieved_at`).
@@ -45,7 +46,7 @@ Every result carries a `Source` (provider, endpoint, `retrieved_at`).
 
 ## Limitations
 
-- `get_submissions` reads `filings.recent` only. The SEC keeps at least the last year or 1000 filings there, so for companies with many filings (for example banks with thousands of structured-note prospectuses) it can contain only about one 10-K. Older pages are listed in `Submissions.older_files` but not fetched yet; step 6 (red flags) will add that where needed.
+- `get_submissions` reads `filings.recent` only. The SEC keeps at least the last year or 1000 filings there, so for companies with many filings (for example banks with thousands of structured-note prospectuses) it can contain only about one 10-K. Older pages are listed in `Submissions.older_files` and `older_pages`; `get_filing_history` loads the ones a period needs (used by the red-flag checks).
 - Company facts contain what companies reported, including restated and duplicate values. Picking the right one (annual vs. quarterly, amendments) is step 3.
 
 ## Tests and fixtures

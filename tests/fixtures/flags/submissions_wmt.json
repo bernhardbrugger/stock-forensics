@@ -1,0 +1,173 @@
+{
+ "cik": "0000104169",
+ "entityType": "operating",
+ "sic": "5331",
+ "sicDescription": "Retail-Variety Stores",
+ "ownerOrg": "07 Trade & Services",
+ "insiderTransactionForOwnerExists": 1,
+ "insiderTransactionForIssuerExists": 1,
+ "name": "Walmart Inc.",
+ "tickers": [
+  "WMT"
+ ],
+ "exchanges": [
+  "Nasdaq"
+ ],
+ "ein": "710415188",
+ "lei": null,
+ "description": "",
+ "website": "",
+ "investorWebsite": "",
+ "category": "Large accelerated filer",
+ "fiscalYearEnd": "0131",
+ "stateOfIncorporation": "DE",
+ "stateOfIncorporationDescription": "DE",
+ "addresses": {
+  "mailing": {
+   "street1": "1 CUSTOMER DRIVE",
+   "street2": null,
+   "city": "BENTONVILLE",
+   "stateOrCountry": "AR",
+   "zipCode": "72716",
+   "stateOrCountryDescription": "AR",
+   "isForeignLocation": 0,
+   "foreignStateTerritory": null,
+   "country": null,
+   "countryCode": null
+  },
+  "business": {
+   "street1": "1 CUSTOMER DRIVE",
+   "street2": null,
+   "city": "BENTONVILLE",
+   "stateOrCountry": "AR",
+   "zipCode": "72716",
+   "stateOrCountryDescription": "AR",
+   "isForeignLocation": null,
+   "foreignStateTerritory": null,
+   "country": null,
+   "countryCode": null
+  }
+ },
+ "phone": "5012734000",
+ "flags": "",
+ "formerNames": [
+  {
+   "name": "Walmart Inc.",
+   "from": "2018-01-31T05:00:00.000Z",
+   "to": "2026-11-06T05:00:00.000Z"
+  },
+  {
+   "name": "WAL MART STORES INC",
+   "from": "1994-02-14T05:00:00.000Z",
+   "to": "2018-01-30T05:00:00.000Z"
+  }
+ ],
+ "filings": {
+  "recent": {
+   "accessionNumber": [
+    "0000104169-26-000154",
+    "0000104169-26-000102",
+    "0000104169-26-000055",
+    "0000104169-25-000191",
+    "0000104169-25-000137",
+    "0000104169-25-000090",
+    "0000104169-25-000021",
+    "0000104169-24-000178",
+    "0000104169-24-000141",
+    "0000104169-24-000105",
+    "0000104169-24-000056",
+    "0000104169-23-000132",
+    "0000104169-23-000097"
+   ],
+   "filingDate": [
+    "2026-08-28",
+    "2026-05-29",
+    "2026-03-13",
+    "2025-12-03",
+    "2025-08-29",
+    "2025-06-06",
+    "2025-03-14",
+    "2024-12-06",
+    "2024-08-30",
+    "2024-06-07",
+    "2024-03-15",
+    "2023-11-30",
+    "2023-09-01"
+   ],
+   "reportDate": [
+    "2026-07-31",
+    "2026-04-30",
+    "2026-01-31",
+    "2025-10-31",
+    "2025-07-31",
+    "2025-04-30",
+    "2025-01-31",
+    "2024-10-31",
+    "2024-07-31",
+    "2024-04-30",
+    "2024-01-31",
+    "2023-10-31",
+    "2023-07-31"
+   ],
+   "form": [
+    "10-Q",
+    "10-Q",
+    "10-K",
+    "10-Q",
+    "10-Q",
+    "10-Q",
+    "10-K",
+    "10-Q",
+    "10-Q",
+    "10-Q",
+    "10-K",
+    "10-Q",
+    "10-Q"
+   ],
+   "items": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "primaryDocument": [
+    "wmt-20260731.htm",
+    "wmt-20260430.htm",
+    "wmt-20260131.htm",
+    "wmt-20251031.htm",
+    "wmt-20250731.htm",
+    "wmt-20250430.htm",
+    "wmt-20250131.htm",
+    "wmt-20241031.htm",
+    "wmt-20240731.htm",
+    "wmt-20240430.htm",
+    "wmt-20240131.htm",
+    "wmt-20231031.htm",
+    "wmt-20230731.htm"
+   ]
+  },
+  "files": [
+   {
+    "name": "CIK0000104169-submissions-001.json",
+    "filingCount": 2000,
+    "filingFrom": "2012-09-06",
+    "filingTo": "2023-06-19"
+   },
+   {
+    "name": "CIK0000104169-submissions-002.json",
+    "filingCount": 1445,
+    "filingFrom": "1994-02-14",
+    "filingTo": "2012-09-04"
+   }
+  ]
+ }
+}

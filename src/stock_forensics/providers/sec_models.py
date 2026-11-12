@@ -38,6 +38,15 @@ class Filing(_Frozen):
     document_url: str | None = None  # link to the original filing document
 
 
+class OlderPage(_Frozen):
+    """An additional, older page of the filing index (``filings.files`` in the SEC data)."""
+
+    name: str
+    filing_from: date | None = None
+    filing_to: date | None = None
+    filing_count: int | None = None
+
+
 class Submissions(_Frozen):
     cik: int
     name: str
@@ -45,8 +54,9 @@ class Submissions(_Frozen):
     industry: str | None = None
     tickers: tuple[str, ...] = ()
     fiscal_year_end: str | None = None  # "MMDD", e.g. "0930"
-    filings: tuple[Filing, ...] = ()  # from filings.recent, newest first
-    older_files: tuple[str, ...] = ()  # names of additional, older filing index pages
+    filings: tuple[Filing, ...] = ()  # newest first; ``filings.recent`` plus any merged pages
+    older_files: tuple[str, ...] = ()  # names of older index pages not merged yet
+    older_pages: tuple[OlderPage, ...] = ()  # the same with their date ranges
     source: Source
 
     def filings_of_form(self, form: str, *, include_amendments: bool = False) -> tuple[Filing, ...]:
@@ -73,19 +83,21 @@ def _opt_date(value: Any) -> date | None:
     return date.fromisoformat(value) if value else None
 
 
-def parse_submissions(raw: dict[str, Any], source: Source) -> Submissions:
-    cik = int(raw["cik"])
-    recent: dict[str, Any] = (raw.get("filings") or {}).get("recent") or {}
+def parse_filing_columns(columns: dict[str, Any], cik: int) -> tuple[Filing, ...]:
+    """Filings from the SEC's column-wise layout (one list per field).
+
+    ``filings.recent`` and the older index pages use the same layout.
+    """
     filings: list[Filing] = []
-    for i, accession in enumerate(recent.get("accessionNumber") or []):
-        document = _at(recent, "primaryDocument", i) or None
-        items_text = _at(recent, "items", i) or ""
+    for i, accession in enumerate(columns.get("accessionNumber") or []):
+        document = _at(columns, "primaryDocument", i) or None
+        items_text = _at(columns, "items", i) or ""
         filings.append(
             Filing(
                 accession_number=accession,
-                form=_at(recent, "form", i),
-                filing_date=date.fromisoformat(_at(recent, "filingDate", i)),
-                report_date=_opt_date(_at(recent, "reportDate", i)),
+                form=_at(columns, "form", i),
+                filing_date=date.fromisoformat(_at(columns, "filingDate", i)),
+                report_date=_opt_date(_at(columns, "reportDate", i)),
                 items=tuple(p.strip() for p in items_text.split(",") if p.strip()),
                 primary_document=document,
                 document_url=(
@@ -95,7 +107,23 @@ def parse_submissions(raw: dict[str, Any], source: Source) -> Submissions:
                 ),
             )
         )
+    return tuple(filings)
+
+
+def parse_submissions(raw: dict[str, Any], source: Source) -> Submissions:
+    cik = int(raw["cik"])
+    recent: dict[str, Any] = (raw.get("filings") or {}).get("recent") or {}
     files = (raw.get("filings") or {}).get("files") or []
+    pages = tuple(
+        OlderPage(
+            name=f["name"],
+            filing_from=_opt_date(f.get("filingFrom")),
+            filing_to=_opt_date(f.get("filingTo")),
+            filing_count=f.get("filingCount"),
+        )
+        for f in files
+        if "name" in f
+    )
     return Submissions(
         cik=cik,
         name=raw["name"],
@@ -103,8 +131,9 @@ def parse_submissions(raw: dict[str, Any], source: Source) -> Submissions:
         industry=raw.get("sicDescription") or None,
         tickers=tuple(raw.get("tickers") or ()),
         fiscal_year_end=raw.get("fiscalYearEnd") or None,
-        filings=tuple(filings),
-        older_files=tuple(f["name"] for f in files if "name" in f),
+        filings=parse_filing_columns(recent, cik),
+        older_files=tuple(p.name for p in pages),
+        older_pages=pages,
         source=source,
     )
 

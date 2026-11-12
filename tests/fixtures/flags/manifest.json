@@ -1,0 +1,184 @@
+{
+ "0001375365-24-000040": {
+  "company": "smci",
+  "form": "8-K",
+  "filing_date": "2024-11-18",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1375365/000137536524000040/smci-20241118.htm"
+ },
+ "0001375365-24-000036": {
+  "company": "smci",
+  "form": "8-K",
+  "filing_date": "2024-10-30",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1375365/000137536524000036/smci-20241024.htm"
+ },
+ "0001375365-23-000023": {
+  "company": "smci",
+  "form": "8-K",
+  "filing_date": "2023-03-15",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1375365/000137536523000023/smci-20230309.htm"
+ },
+ "0001637459-19-000033": {
+  "company": "khc",
+  "form": "8-K",
+  "filing_date": "2019-05-06",
+  "kind": "restatement",
+  "url": "https://www.sec.gov/Archives/edgar/data/1637459/000163745919000033/may2019form8-k.htm"
+ },
+ "0001813756-24-000014": {
+  "company": "wework",
+  "form": "8-K",
+  "filing_date": "2024-04-09",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000181375624000014/we-20240403.htm"
+ },
+ "0001193125-23-276141": {
+  "company": "wework",
+  "form": "8-K",
+  "filing_date": "2023-11-13",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000119312523276141/d280981d8k.htm"
+ },
+ "0001813756-23-000016": {
+  "company": "wework",
+  "form": "10-K",
+  "filing_date": "2023-03-29",
+  "kind": "going_concern",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000181375623000016/we-20221231.htm"
+ },
+ "0001193125-21-361365": {
+  "company": "wework",
+  "form": "10-K/A",
+  "filing_date": "2021-12-17",
+  "kind": "amendment",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000119312521361365/d237007d10ka.htm"
+ },
+ "0001193125-21-345312": {
+  "company": "wework",
+  "form": "8-K",
+  "filing_date": "2021-12-01",
+  "kind": "restatement",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000119312521345312/d211477d8k.htm"
+ },
+ "0001193125-21-308158": {
+  "company": "wework",
+  "form": "8-K/A",
+  "filing_date": "2021-10-26",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000119312521308158/d204248d8ka.htm"
+ },
+ "0001193125-21-159283": {
+  "company": "wework",
+  "form": "10-K/A",
+  "filing_date": "2021-05-12",
+  "kind": "amendment",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000119312521159283/d466774d10ka.htm"
+ },
+ "0001193125-21-159275": {
+  "company": "wework",
+  "form": "8-K",
+  "filing_date": "2021-05-12",
+  "kind": "restatement",
+  "url": "https://www.sec.gov/Archives/edgar/data/1813756/000119312521159275/d12329d8k.htm"
+ },
+ "0001008654-24-000009": {
+  "company": "tupperware",
+  "form": "8-K",
+  "filing_date": "2024-01-29",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1008654/000100865424000009/tup-20240124.htm"
+ },
+ "0001008654-23-000087": {
+  "company": "tupperware",
+  "form": "8-K",
+  "filing_date": "2023-10-27",
+  "kind": "auditor_change",
+  "url": "https://www.sec.gov/Archives/edgar/data/1008654/000100865423000087/tup-20231024.htm"
+ },
+ "0001008654-23-000079": {
+  "company": "tupperware",
+  "form": "10-K",
+  "filing_date": "2023-10-13",
+  "kind": "going_concern",
+  "url": "https://www.sec.gov/Archives/edgar/data/1008654/000100865423000079/tup-20221231.htm"
+ },
+ "0001008654-23-000022": {
+  "company": "tupperware",
+  "form": "8-K",
+  "filing_date": "2023-03-16",
+  "kind": "restatement",
+  "url": "https://www.sec.gov/Archives/edgar/data/1008654/000100865423000022/tup-20230312.htm"
+ },
+ "0001008654-21-000070": {
+  "company": "tupperware",
+  "form": "10-K/A",
+  "filing_date": "2021-08-05",
+  "kind": "amendment",
+  "url": "https://www.sec.gov/Archives/edgar/data/1008654/000100865421000070/tup-20201226.htm"
+ },
+ "0000886158-23-000059": {
+  "company": "bbby",
+  "form": "10-K",
+  "filing_date": "2023-06-14",
+  "kind": "going_concern",
+  "url": "https://www.sec.gov/Archives/edgar/data/886158/000088615823000059/bbby-20230225.htm"
+ },
+ "0000886158-21-000018": {
+  "company": "bbby",
+  "form": "10-K/A",
+  "filing_date": "2021-04-27",
+  "kind": "amendment",
+  "url": "https://www.sec.gov/Archives/edgar/data/886158/000088615821000018/bbby-20210227.htm"
+ },
+ "0001193125-26-197767": {
+  "company": "spirit",
+  "form": "10-K/A",
+  "filing_date": "2026-04-30",
+  "kind": "amendment",
+  "url": "https://www.sec.gov/Archives/edgar/data/1498710/000119312526197767/d64539d10ka.htm"
+ },
+ "0001628280-26-018265": {
+  "company": "spirit",
+  "form": "10-K",
+  "filing_date": "2026-03-16",
+  "kind": "going_concern",
+  "url": "https://www.sec.gov/Archives/edgar/data/1498710/000162828026018265/flyy-20251231.htm"
+ },
+ "0001193125-25-107562": {
+  "company": "spirit",
+  "form": "10-K/A",
+  "filing_date": "2025-04-30",
+  "kind": "amendment",
+  "url": "https://www.sec.gov/Archives/edgar/data/1498710/000119312525107562/d940478d10ka.htm"
+ },
+ "0001498710-25-000008": {
+  "company": "spirit",
+  "form": "10-K",
+  "filing_date": "2025-03-03",
+  "kind": "going_concern",
+  "url": "https://www.sec.gov/Archives/edgar/data/1498710/000149871025000008/save-20241231.htm"
+ },
+ "0001079973-26-000405": {
+  "company": "duos",
+  "form": "10-K",
+  "filing_date": "",
+  "kind": "going_concern_negative",
+  "url": "https://www.sec.gov/Archives/edgar/data/1396536/000107997326000405/duos_10k-123125.htm"
+ },
+ "0001663577-26-000175": {
+  "company": "medinotec",
+  "form": "10-K",
+  "filing_date": "",
+  "kind": "going_concern_negative",
+  "url": "https://www.sec.gov/Archives/edgar/data/1931055/000166357726000175/mdnc_10k022826.htm"
+ },
+ "0001437749-26-010841": {
+  "company": "monopar",
+  "form": "10-K",
+  "filing_date": "",
+  "kind": "going_concern_negative",
+  "url": "https://www.sec.gov/Archives/edgar/data/1645469/000143774926010841/mnpr20251231c_10ka.htm"
+ }
+}

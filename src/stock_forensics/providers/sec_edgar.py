@@ -10,9 +10,10 @@ from __future__ import annotations
 import json
 import os
 import random
+import re
 import time
 from collections.abc import Callable
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
 from types import TracebackType
@@ -25,8 +26,11 @@ from stock_forensics.providers._cache import CacheEntry, DiskCache
 from stock_forensics.providers._ratelimit import RateLimiter, shared_limiter
 from stock_forensics.providers.sec_models import (
     CompanyFacts,
+    Filing,
+    OlderPage,
     Submissions,
     parse_company_facts,
+    parse_filing_columns,
     parse_submissions,
 )
 
@@ -36,7 +40,9 @@ PROVIDER = "sec_edgar"
 TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 COMPANY_FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
+SUBMISSIONS_PAGE_URL = "https://data.sec.gov/submissions/{name}"
 ARCHIVES_PREFIX = "https://www.sec.gov/Archives/edgar/data/"
+_PAGE_NAME = re.compile(r"^CIK\d{10}-submissions-\d+\.json$")
 
 _MAX_RETRY_AFTER_SECONDS = 60.0
 
@@ -157,6 +163,40 @@ class SecEdgarClient:
         """All XBRL facts a company has ever reported."""
         data, source = self._get_json(COMPANY_FACTS_URL.format(cik=_pad(cik)))
         return parse_company_facts(data, source)
+
+    def get_filing_history(self, cik: int, since: date | None = None) -> Submissions:
+        """The filing index including the older pages needed to reach back to ``since``.
+
+        ``filings.recent`` holds at least the last year or 1000 filings; for companies with many
+        filings that can be only a few years. Older index pages are loaded when their date
+        range reaches ``since`` (all pages if ``since`` is ``None``) and merged, newest first.
+        Pages that are not needed stay listed in ``older_pages``.
+        """
+        submissions = self.get_submissions(cik)
+        wanted: list[OlderPage] = []
+        skipped: list[OlderPage] = []
+        for page in submissions.older_pages:
+            needed = since is None or page.filing_to is None or page.filing_to >= since
+            (wanted if needed else skipped).append(page)
+        if not wanted:
+            return submissions
+        merged: dict[str, Filing] = {f.accession_number: f for f in submissions.filings}
+        for page in wanted:
+            if not _PAGE_NAME.match(page.name):
+                raise SecEdgarError(f"Unexpected filing index page name: {page.name!r}")
+            data, _ = self._get_json(SUBMISSIONS_PAGE_URL.format(name=page.name))
+            for filing in parse_filing_columns(data, submissions.cik):
+                merged.setdefault(filing.accession_number, filing)
+        ordered = sorted(
+            merged.values(), key=lambda f: (f.filing_date, f.accession_number), reverse=True
+        )
+        return submissions.model_copy(
+            update={
+                "filings": tuple(ordered),
+                "older_pages": tuple(skipped),
+                "older_files": tuple(p.name for p in skipped),
+            }
+        )
 
     def get_document(self, url: str) -> bytes:
         """The raw bytes of a filing document, e.g. ``Filing.document_url`` of a 10-K.
