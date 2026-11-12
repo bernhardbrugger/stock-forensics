@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+<ownershipDocument>
+
+    <schemaVersion>X0508</schemaVersion>
+
+    <documentType>4</documentType>
+
+    <periodOfReport>2024-08-14</periodOfReport>
+
+    <notSubjectToSection16>0</notSubjectToSection16>
+
+    <issuer>
+        <issuerCik>0001423902</issuerCik>
+        <issuerName>Western Midstream Partners, LP</issuerName>
+        <issuerTradingSymbol>WES</issuerTradingSymbol>
+    </issuer>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0000797468</rptOwnerCik>
+            <rptOwnerName>OCCIDENTAL PETROLEUM CORP /DE/</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>5 GREENWAY PLAZA SUITE 110</rptOwnerStreet1>
+            <rptOwnerStreet2></rptOwnerStreet2>
+            <rptOwnerCity>HOUSTON</rptOwnerCity>
+            <rptOwnerState>TX</rptOwnerState>
+            <rptOwnerZipCode>77046</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0000856716</rptOwnerCik>
+            <rptOwnerName>WESTERN GAS RESOURCES INC</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>1099 18TH STREET, SUITE 1200</rptOwnerStreet1>
+            <rptOwnerStreet2></rptOwnerStreet2>
+            <rptOwnerCity>DENVER</rptOwnerCity>
+            <rptOwnerState>CO</rptOwnerState>
+            <rptOwnerZipCode>80202-1955</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001601306</rptOwnerCik>
+            <rptOwnerName>APC Midstream Holdings, LLC</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>5 GREENWAY PLAZA</rptOwnerStreet1>
+            <rptOwnerStreet2>SUITE 110</rptOwnerStreet2>
+            <rptOwnerCity>HOUSTON</rptOwnerCity>
+            <rptOwnerState>TX</rptOwnerState>
+            <rptOwnerZipCode>77046</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001771584</rptOwnerCik>
+            <rptOwnerName>WGR Asset Holding Co LLC</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>5 GREENWAY PLAZA</rptOwnerStreet1>
+            <rptOwnerStreet2>SUITE 110</rptOwnerStreet2>
+            <rptOwnerCity>HOUSTON</rptOwnerCity>
+            <rptOwnerState>TX</rptOwnerState>
+            <rptOwnerZipCode>77046</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001699285</rptOwnerCik>
+            <rptOwnerName>Kerr-McGee Worldwide Corp</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>5 GREENWAY PLAZA</rptOwnerStreet1>
+            <rptOwnerStreet2>SUITE 110</rptOwnerStreet2>
+            <rptOwnerCity>HOUSTON</rptOwnerCity>
+            <rptOwnerState>TX</rptOwnerState>
+            <rptOwnerZipCode>77046</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001824936</rptOwnerCik>
+            <rptOwnerName>Anadarko USH1 Corp</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>5 GREENWAY PLAZA</rptOwnerStreet1>
+            <rptOwnerStreet2>SUITE 110</rptOwnerStreet2>
+            <rptOwnerCity>HOUSTON</rptOwnerCity>
+            <rptOwnerState>TX</rptOwnerState>
+            <rptOwnerZipCode>77046</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001141185</rptOwnerCik>
+            <rptOwnerName>KERR MCGEE CORP /DE</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerStreet1>5 GREENWAY PLAZA</rptOwnerStreet1>
+            <rptOwnerStreet2>SUITE 110</rptOwnerStreet2>
+            <rptOwnerCity>HOUSTON</rptOwnerCity>
+            <rptOwnerState>TX</rptOwnerState>
+            <rptOwnerZipCode>77046</rptOwnerZipCode>
+            <rptOwnerStateDescription></rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <aff10b5One>0</aff10b5One>
+
+    <nonDerivativeTable>
+        <nonDerivativeTransaction>
+            <securityTitle>
+                <value>COMMON UNITS (LIMITED PARTNER INTERESTS)</value>
+            </securityTitle>
+            <transactionDate>
+                <value>2024-08-14</value>
+            </transactionDate>
+            <transactionCoding>
+                <transactionFormType>4</transactionFormType>
+                <transactionCode>S</transactionCode>
+                <equitySwapInvolved>0</equitySwapInvolved>
+                <footnoteId id="F1"/>
+            </transactionCoding>
+            <transactionAmounts>
+                <transactionShares>
+                    <value>19500000</value>
+                </transactionShares>
+                <transactionPricePerShare>
+                    <value>35.75</value>
+                    <footnoteId id="F1"/>
+                </transactionPricePerShare>
+                <transactionAcquiredDisposedCode>
+                    <value>D</value>
+                </transactionAcquiredDisposedCode>
+            </transactionAmounts>
+            <postTransactionAmounts>
+                <sharesOwnedFollowingTransaction>
+                    <value>165681578</value>
+                </sharesOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>I</value>
+                </directOrIndirectOwnership>
+                <natureOfOwnership>
+                    <value>See Footnotes</value>
+                    <footnoteId id="F2"/>
+                    <footnoteId id="F3"/>
+                    <footnoteId id="F4"/>
+                </natureOfOwnership>
+            </ownershipNature>
+        </nonDerivativeTransaction>
+    </nonDerivativeTable>
+
+    <derivativeTable></derivativeTable>
+
+    <footnotes>
+        <footnote id="F1">On August 14, 2024, WGR Asset Holding Company LLC (&quot;WGRAH&quot;) and Anadarko USH1 Corporation (&quot;AUSH1&quot;) sold 14,139,260 and 5,360,740 common units representing limited partner interests in the Issuer (the &quot;Common Units&quot;), respectively, in an underwritten public offering at a price of $35.75 per Common Unit.</footnote>
+        <footnote id="F2">Following the transaction reported herein, Western Gas Resources, Inc. (&quot;WGRI&quot;) holds 156,219,520 Common Units, APC Midstream Holdings, LLC (&quot;APCMH&quot;) holds 457,849 Common Units and AUSHI holds 9,004,209 Common Units. WGRI also is the sole member of Western Midstream Holdings, LLC, the 2% economic general partner of the Issuer.</footnote>
+        <footnote id="F3">OXY USA Inc. (&quot;OXY USA&quot;) is a wholly owned subsidiary of Occidental Petroleum Corporation (&quot;Occidental&quot;). OXY USA owns 100% of the outstanding common stock of OXY Oil Partners, Inc. (&quot;OOP&quot;). OOP owns 100% of the outstanding common stock of Baseball Merger Sub 2, Inc. (&quot;BMS&quot;).</footnote>
+        <footnote id="F4">Anadarko Petroleum Corporation (&quot;APC&quot;) is a wholly owned subsidiary of BMS. APC owns (i) 100% of Anadarko Holding Company (&quot;AHC&quot;) and (ii) indirectly, 100% of the common stock of WGRI and Kerr-McGee Corporation (&quot;KMG&quot;). WGRI is the sole member of APCMH. KMG and AHC together own 100% of the common stock of Kerr-McGee Worldwide Corporation (&quot;KMWW&quot;), and APC and KMWW together indirectly own 100% of the common stock of AUSH1. Accordingly, OXY USA, OOP, BMS, APC, AHC, WGRI, AUSH1, KMG, APCMH, KMWW and WGRAH are all direct or indirect wholly owned subsidiaries of Occidental.</footnote>
+    </footnotes>
+
+    <remarks>Due to the limitations of the U.S. Securities and Exchange Commission's electronic filing system, each of Occidental, OXY USA, OOP, BMS, APC and AHC are concurrently filing a Form 4 to report the transaction disclosed herein.</remarks>
+
+    <ownerSignature>
+        <signatureName>/s/ Nicole E. Clark of Western Gas Resources, Inc.</signatureName>
+        <signatureDate>2024-08-16</signatureDate>
+    </ownerSignature>
+
+    <ownerSignature>
+        <signatureName>/s/ Nicole E. Clark of APC Midstream Holdings, LLC</signatureName>
+        <signatureDate>2024-08-16</signatureDate>
+    </ownerSignature>
+
+    <ownerSignature>
+        <signatureName>/s/ Nicole E. Clark of WGR Asset Holding Company LLC</signatureName>
+        <signatureDate>2024-08-16</signatureDate>
+    </ownerSignature>
+
+    <ownerSignature>
+        <signatureName>/s/ Nicole E. Clark of Kerr-McGee Corporation</signatureName>
+        <signatureDate>2024-08-16</signatureDate>
+    </ownerSignature>
+
+    <ownerSignature>
+        <signatureName>/s/ Nicole E. Clark of Kerr-McGee Worldwide Corporation</signatureName>
+        <signatureDate>2024-08-16</signatureDate>
+    </ownerSignature>
+
+    <ownerSignature>
+        <signatureName>/s/ Nicole E. Clark of Anadarko USH1 Corporation</signatureName>
+        <signatureDate>2024-08-16</signatureDate>
+    </ownerSignature>
+</ownershipDocument>

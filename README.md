@@ -12,6 +12,7 @@ Forensic check for US stocks: accounting red flags, forensic scores (Beneish, Al
 - [Metrics](docs/metrics.md): 25 ratios with formulas, inputs and explicit gaps
 - [Forensic scores](docs/scores.md): Beneish, Altman, Piotroski, accruals ratio, with thresholds and limitations
 - [Red flags from SEC filings](docs/red-flags.md): auditor changes, restatements, late filings, going concern, amendments
+- [Insider activity](docs/insiders.md): Form 4 purchases and sales, 10b5-1 plans, cluster buys
 
 ## Not financial advice
 
