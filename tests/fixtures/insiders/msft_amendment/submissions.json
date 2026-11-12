@@ -1,0 +1,42 @@
+{
+ "cik": "0000789019",
+ "name": "MICROSOFT CORP",
+ "tickers": [
+  "MSFT"
+ ],
+ "filings": {
+  "recent": {
+   "accessionNumber": [
+    "0001062993-24-020678",
+    "0001062993-24-019893",
+    "0001062993-24-019890"
+   ],
+   "filingDate": [
+    "2024-12-16",
+    "2024-12-02",
+    "2024-12-02"
+   ],
+   "reportDate": [
+    "2024-12-16",
+    "2024-12-02",
+    "2024-12-02"
+   ],
+   "form": [
+    "4",
+    "4/A",
+    "4"
+   ],
+   "items": [
+    "",
+    "",
+    ""
+   ],
+   "primaryDocument": [
+    "xslF345X05/form4.xml",
+    "xslF345X05/form4a.xml",
+    "xslF345X05/form4.xml"
+   ]
+  },
+  "files": []
+ }
+}

@@ -154,11 +154,11 @@ First check the most reliable way to detect going-concern warnings, and suggest 
 ### Step 7: Insider activity (Form 4)
 **Goal:** Are the people with the most information buying or selling?
 
-- [ ] Fetch Form 4 filings for the last 12 months and parse the XML
-- [ ] Distinguish transaction codes: open-market purchase (P), sale (S), grant (A), option exercise (M), tax withholding (F)
-- [ ] Account for 10b5-1 plans (pre-scheduled sales)
-- [ ] Aggregation: net buys/sells by person and role (CEO, CFO, director), cluster buys (several insiders within a short period)
-- [ ] Tests with fixtures
+- [x] Fetch Form 4 filings for the last 12 months and parse the XML
+- [x] Distinguish transaction codes: open-market purchase (P), sale (S), grant (A), option exercise (M), tax withholding (F)
+- [x] Account for 10b5-1 plans (pre-scheduled sales)
+- [x] Aggregation: net buys/sells by person and role (CEO, CFO, director), cluster buys (several insiders within a short period)
+- [x] Tests with fixtures
 
 **Done when:** For AAPL, the insider overview for the last 12 months appears with links to the Form 4 filings.
 
