@@ -115,6 +115,9 @@ class Value(_Frozen):
     ``value`` is ``None`` when the number cannot be provided; ``note`` must then say why
     (never fill gaps with guesses or zeros). ``note`` may also carry a formula or remark
     for values that do have a number.
+
+    ``inputs`` holds the values a computed number was calculated from (each with its own
+    source), so a metric can be traced back to the filings. It is empty for reported values.
     """
 
     value: Decimal | None
@@ -122,6 +125,7 @@ class Value(_Frozen):
     period: Period
     source: Source
     note: str | None = None
+    inputs: tuple[Value, ...] = ()
 
     @model_validator(mode="after")
     def _missing_needs_reason(self) -> Self:
@@ -130,9 +134,20 @@ class Value(_Frozen):
         return self
 
 
-def missing(reason: str, *, unit: Unit, period: Period, source: Source) -> Value:
+Value.model_rebuild()  # resolve the self-reference of ``inputs``
+
+
+def missing(
+    reason: str,
+    *,
+    unit: Unit,
+    period: Period,
+    source: Source,
+    inputs: tuple[Value, ...] = (),
+) -> Value:
     """Build a :class:`Value` with no number and a clear explanation.
 
     ``source`` states where the number was looked for (e.g. the company-facts endpoint).
+    ``inputs`` are the values that were available when a computation could not be completed.
     """
-    return Value(value=None, unit=unit, period=period, source=source, note=reason)
+    return Value(value=None, unit=unit, period=period, source=source, note=reason, inputs=inputs)

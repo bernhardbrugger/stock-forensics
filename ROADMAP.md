@@ -93,13 +93,13 @@ Plan first: mapping strategy, handling of amendments and duplicates, TTM. At the
 ### Step 4: Metrics engine
 **Goal:** The metrics from my old `Stock-Forensic` notebook, rebuilt cleanly, tested and with sources.
 
-- [ ] **Profitability:** gross, operating and net margin, ROE, ROA, ROIC
-- [ ] **Liquidity & leverage:** current ratio, quick ratio, debt/equity, interest coverage, net cash
-- [ ] **Cash flow quality:** free cash flow, FCF margin, cash conversion (operating cash flow ÷ net income)
-- [ ] **Growth:** revenue and earnings growth (YoY, 3-year CAGR), growth consistency
-- [ ] **Capital allocation:** payout ratio, buybacks, dilution (share count YoY), R&D ratio
-- [ ] Every metric returns a `Value` with the formula in `note` and its input values as source
-- [ ] Tests with hand-calculated reference values
+- [x] **Profitability:** gross, operating and net margin, ROE, ROA, ROIC
+- [x] **Liquidity & leverage:** current ratio, quick ratio, debt/equity, interest coverage, net cash
+- [x] **Cash flow quality:** free cash flow, FCF margin, cash conversion (operating cash flow ÷ net income)
+- [x] **Growth:** revenue and earnings growth (YoY, 3-year CAGR), growth consistency
+- [x] **Capital allocation:** payout ratio, buybacks, dilution (share count YoY), R&D ratio
+- [x] Every metric returns a `Value` with the formula in `note` and its input values as source
+- [x] Tests with hand-calculated reference values
 
 **Done when:** All metrics are computed for AAPL and spot checks recalculated by hand match.
 
