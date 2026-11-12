@@ -25,6 +25,12 @@ ALL_SPECS: tuple[MetricSpec, ...] = (
     *capital_allocation.SPECS,
 )
 assert len({s.name for s in ALL_SPECS}) == len(ALL_SPECS), "metric names must be unique"
+assert all(s.group is not None for s in ALL_SPECS), "published metrics need a group"
+
+
+def _group(spec: MetricSpec) -> Group:
+    assert spec.group is not None
+    return spec.group
 
 
 def compute_metrics(statements: Statements) -> Metrics:
@@ -33,7 +39,7 @@ def compute_metrics(statements: Statements) -> Metrics:
         spec.name: MetricSeries(
             name=spec.name,
             label=spec.label,
-            group=spec.group,
+            group=_group(spec),
             unit=spec.unit,
             formula=spec.formula,
             annual={fy: compute(spec, statements, fy) for fy in statements.fiscal_years},

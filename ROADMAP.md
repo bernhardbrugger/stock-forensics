@@ -114,13 +114,13 @@ Plan first.
 ### Step 5: Forensic scores
 **Goal:** The core of the project: a systematic search for warning signs in the numbers.
 
-- [ ] **Beneish M-Score** (8 variables: DSRI, GMI, AQI, SGI, DEPI, SGAI, TATA, LVGI; threshold −1.78)
-- [ ] **Altman Z-Score** (original formula for manufacturers, Z'' variant for non-manufacturers; output the zones clearly)
-- [ ] **Piotroski F-Score** (9 criteria, each reported individually)
-- [ ] **Accruals ratio** (earnings quality)
-- [ ] Every score returns: total, all components, thresholds, interpretation, limitations
-- [ ] Industry exclusions: banks, insurers, REITs → "not applicable" with reason (via SIC code)
-- [ ] Tests: one fully hand-calculated example per score, with the calculation documented as a comment in the test
+- [x] **Beneish M-Score** (8 variables: DSRI, GMI, AQI, SGI, DEPI, SGAI, TATA, LVGI; threshold −1.78)
+- [x] **Altman Z-Score** (original formula for manufacturers, Z'' variant for non-manufacturers; output the zones clearly)
+- [x] **Piotroski F-Score** (9 criteria, each reported individually)
+- [x] **Accruals ratio** (earnings quality)
+- [x] Every score returns: total, all components, thresholds, interpretation, limitations
+- [x] Industry exclusions: banks, insurers, REITs → "not applicable" with reason (via SIC code)
+- [x] Tests: one fully hand-calculated example per score, with the calculation documented as a comment in the test
 
 **Done when:** All three scores are plausible for AAPL and MSFT, all components are visible in the output, and a bank is correctly marked "not applicable".
 
