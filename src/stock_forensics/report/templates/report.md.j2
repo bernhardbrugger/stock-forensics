@@ -1,0 +1,171 @@
+# {{ r.company_name }} ({{ r.ticker }}): forensic report
+
+CIK {{ r.cik }}{% if r.industry %} | {{ r.industry }}{% if r.sic_code %} (SIC {{ r.sic_code }}){% endif %}{% endif %} | as of {{ r.as_of | iso }} | SEC data retrieved {{ r.retrieved_at.strftime('%Y-%m-%d %H:%M UTC') }} | stock-forensics {{ r.version }}
+
+> {{ r.disclaimer }}
+
+## Result: {{ r.summary.overall | label }}
+
+{{ r.summary.headline }}
+
+| Area | Light | Summary |
+| --- | --- | --- |
+{% for area in r.summary.areas %}
+| {{ area.label | md }} | {{ area.light | label }} | {{ area.summary | md }} |
+{% endfor %}
+
+{% set shown = r.summary.reasons | rejectattr('light', 'equalto', 'info') | list %}
+{% if shown %}
+What to look at:
+
+{% for reason in shown %}
+- **{{ reason.light | label }}**: {{ reason.text }}
+{% endfor %}
+
+{% endif %}
+{% if r.errors %}
+**Some parts of this report are missing:**
+
+{% for section, why in r.errors.items() %}
+- `{{ section }}`: {{ why }}
+{% endfor %}
+
+{% endif %}
+## Forensic scores
+
+{% if not scores %}
+Not available{% if r.errors.get('scores') %}: {{ r.errors['scores'] }}{% endif %}.
+
+{% endif %}
+{% for s in scores %}
+### {{ s.label }}, FY{{ s.fiscal_year }}: {{ s.light | label }}
+
+{% if s.applicable %}
+**{{ s.total }}** ({{ s.zone }}). {{ s.interpretation }}
+{% else %}
+Not applicable. {{ s.reason }}
+{% endif %}
+
+Formula: {{ s.formula }}{% if s.constant %} (constant {{ s.constant }}){% endif %}. Reference: {{ s.reference }}
+
+{% if s.components %}
+| Input | Value | Weight | Contribution | Passed |
+| --- | --- | --- | --- | --- |
+{% for c in s.components %}
+| {{ c.label | md }} | {{ c.value | md }} | {{ c.weight }} | {{ c.contribution }} | {{ c.passed }} |
+{% endfor %}
+
+{% endif %}
+{% if s.thresholds %}
+Thresholds:
+
+{% for label, value, meaning in s.thresholds %}
+- {{ label }}: {{ value }}. {{ meaning }}
+{% endfor %}
+
+{% endif %}
+{% if s.limitations %}
+Known limitations:
+
+{% for note in s.limitations %}
+- {{ note }}
+{% endfor %}
+
+{% endif %}
+{% endfor %}
+## Red flags in SEC filings
+
+{% if r.red_flags is none %}
+Not available{% if r.errors.get('red_flags') %}: {{ r.errors['red_flags'] }}{% endif %}.
+
+{% else %}
+Examined: filings from {{ r.red_flags.since | iso }} to {{ r.red_flags.as_of | iso }}. The light looks at the last three years.
+
+{% if not r.red_flags.flags %}
+No red flags found in the examined filings.
+
+{% endif %}
+{% for f in r.red_flags.flags %}
+### {{ f.title }} ({{ f.severity.value }} severity)
+
+Filed {{ f.filing_date | iso }}, form {{ f.form }}{% if f.period %}, period {{ f.period | iso }}{% endif %}{% if f.accession_number %}, accession {{ f.accession_number }}{% endif %}{% if f.document_url %}, [original filing]({{ f.document_url }}){% endif %}
+
+{{ f.detail }}
+
+{% for quote in f.evidence %}
+> {{ quote | md }}
+
+{% endfor %}
+{% endfor %}
+| Check | Filings examined | Flagged | Notes |
+| --- | --- | --- | --- |
+{% for c in r.red_flags.coverage %}
+| {{ c.kind.value | replace('_', ' ') }} | {{ c.examined }} | {{ c.flagged }} | {{ c.notes | join('; ') | md }} |
+{% endfor %}
+
+{% endif %}
+## Insider activity (Form 4)
+
+{% if insider is none %}
+Not available{% if r.errors.get('insiders') %}: {{ r.errors['insiders'] }}{% endif %}.
+
+{% else %}
+{% set a = insider.activity %}
+Open-market purchases and sales from {{ a.since | iso }} to {{ a.as_of | iso }}. For information only.
+
+- Purchases: {{ insider.purchases }} ({{ a.totals.purchases.count }} trades, {{ a.totals.buyers }} insiders)
+- Sales: {{ insider.sales }} ({{ a.totals.sales.count }} trades, {{ a.totals.sellers }} insiders), of which under 10b5-1 plans: {{ insider.planned_sales }} ({{ a.totals.planned_sales.count }} trades)
+- Net (buys minus sells): {{ insider.net }}
+{% for cluster in a.clusters %}
+- Cluster buy: {{ cluster.insiders | length }} insiders bought between {{ cluster.start | iso }} and {{ cluster.end | iso }} ({{ cluster.amount | val }})
+{% endfor %}
+
+{% if insider.transactions %}
+| Date | Insider | Type | Shares | Price | Amount | Form 4 |
+| --- | --- | --- | --- | --- | --- | --- |
+{% for t in insider.transactions %}
+| {{ t.transaction_date | iso }} | {{ t.owner_name | md }} | {{ t.category.value }}{% if t.under_10b5_1 %} (10b5-1 plan){% endif %} | {{ t.shares | val }} | {{ t.price | val }} | {{ t.amount | val }} | {% if t.document_url %}[{{ t.accession_number }}]({{ t.document_url }}){% else %}{{ t.accession_number }}{% endif %} |
+{% endfor %}
+
+{% if insider.more_transactions %}
+{{ insider.more_transactions }} more open-market transactions are in the JSON export.
+
+{% endif %}
+{% else %}
+No open-market purchases or sales in this period.
+
+{% endif %}
+{% endif %}
+## Key figures
+
+{% for t in ([financials] if financials else []) + (metric_tables | list) %}
+**{{ t.title }}**
+
+| Item |{% for year in t.years %} FY{{ year }} |{% endfor %}
+
+| --- |{% for year in t.years %} --- |{% endfor %}
+
+{% for row in t.rows %}
+| {{ row.label | md }} |{% for cell in row.cells %} {{ cell.text | md }} |{% endfor %}
+
+{% endfor %}
+
+{% endfor %}
+{% if not financials and not metric_tables %}
+Not available{% if r.errors.get('statements') %}: {{ r.errors['statements'] }}{% endif %}.
+
+{% endif %}
+"n/a" means the figure could not be computed (concept not reported, or not enough years). The HTML and JSON reports give the reason and the inputs of every figure.
+
+## Sources
+
+{% for s in r.sources %}
+- [{{ s.accession_number }}]({{ s.url }}) {{ s.form_type or '' }}{% if s.period_end %}, period end {{ s.period_end | iso }}{% endif %} ({{ s.used_for | join(', ') }})
+{% endfor %}
+{% if not r.sources %}
+No filings to list.
+{% endif %}
+
+---
+
+{{ r.disclaimer }} Generated by stock-forensics {{ r.version }}. Every number is computed by code from SEC filings.
