@@ -412,6 +412,7 @@ class _Engine:
                 form_type=picked.form,
                 accession_number=picked.accn,
                 xbrl_concept=picked.concept,
+                filed=picked.filed,
                 retrieved_at=self.source.retrieved_at,
             ),
             note=picked.note,

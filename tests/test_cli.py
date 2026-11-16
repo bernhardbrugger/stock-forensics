@@ -15,6 +15,8 @@ from stock_forensics import cli
 from stock_forensics.cli import OutputFormat, app, default_output_path, load_env_file
 from stock_forensics.providers.sec_edgar import SecEdgarClient
 from stock_forensics.report import DISCLAIMER, ForensicReport, analyze
+from stock_forensics.report.pipeline import TOTAL_STEPS
+from tests.price_fixtures import FakePrices
 from tests.report_fixtures import AS_OF, FakeSec, make_client
 
 runner = CliRunner()
@@ -33,7 +35,7 @@ def plain_terminal(monkeypatch: pytest.MonkeyPatch) -> None:
 def fake_sec(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, object]:
     """Work in an empty folder, answer with the fake SEC and pin the analysis date."""
     monkeypatch.chdir(tmp_path)
-    state: dict[str, object] = {"fake": FakeSec(), "no_cache": None}
+    state: dict[str, object] = {"fake": FakeSec(), "no_cache": None, "prices_choice": None}
 
     def build(*, no_cache: bool) -> SecEdgarClient:
         state["no_cache"] = no_cache
@@ -41,7 +43,14 @@ def fake_sec(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, objec
         assert callable(fake)
         return make_client(tmp_path / "cache", fake)
 
+    def select(choice: str) -> tuple[FakePrices | None, str | None]:
+        state["prices_choice"] = choice
+        if choice == "none":
+            return None, "price data was switched off (--prices none)"
+        return FakePrices(), None
+
     monkeypatch.setattr(cli, "build_client", build)
+    monkeypatch.setattr(cli, "select_provider", select)  # never a real price request in tests
     monkeypatch.setattr(cli, "analyze", functools.partial(analyze, as_of=AS_OF))
     return state
 
@@ -53,9 +62,12 @@ def test_default_run_writes_an_html_report(fake_sec: dict[str, object], tmp_path
     report = tmp_path / "AAPL-forensics.html"
     assert report.read_text(encoding="utf-8").startswith("<!DOCTYPE html>")
     assert "Apple Inc." in report.read_text(encoding="utf-8")
-    for step in range(1, 8):
-        assert f"[{step}/7]" in result.stderr
-    assert "Caution" in result.stderr
+    for step in range(1, TOTAL_STEPS + 1):
+        assert f"[{step}/{TOTAL_STEPS}]" in result.stderr
+    # With market value the original Altman Z applies and is clear; prices never set a light.
+    assert "AAPL Apple Inc.: Clear." in result.stderr
+    assert "Market data: fakeprices, latest close 2026-11-12" in result.stderr
+    assert fake_sec["prices_choice"] == "auto"
     assert "AAPL-forensics.html" in result.stderr
     assert "Not financial advice" in result.stderr  # the note is on screen, not only in the file
     assert fake_sec["no_cache"] is False
@@ -93,7 +105,8 @@ def test_out_dash_writes_the_report_to_stdout(fake_sec: dict[str, object], tmp_p
     result = runner.invoke(app, ["AAPL", "-f", "md", "-o", "-"])
     assert result.exit_code == 0, result.stderr
     assert result.stdout.startswith("# Apple Inc. (AAPL)")
-    assert "[1/7]" in result.stderr and "[1/7]" not in result.stdout
+    first = f"[1/{TOTAL_STEPS}]"
+    assert first in result.stderr and first not in result.stdout
     assert not list(tmp_path.glob("AAPL-forensics.*"))
 
 

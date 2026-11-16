@@ -26,9 +26,15 @@ classifiers = [
 [project.scripts]
 forensics = "stock_forensics.cli:app"
 
+[project.optional-dependencies]
+prices = [
+    "yfinance>=1.8.0",
+]
+
 [dependency-groups]
 dev = [
     "mypy>=1.13",
+    "pandas>=3.1.1",
     "pytest>=8.3",
     "pytest-recording>=0.13",
     "ruff>=0.8",

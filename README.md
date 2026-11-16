@@ -2,7 +2,7 @@
 
 Forensic check for US stocks: accounting red flags, forensic scores (Beneish, Altman, Piotroski), SEC filing flags and insider activity. Every number carries its source.
 
-> **Work in progress.** The core check works (steps 0 to 8); market data, the MCP server and the optional narrative layer are still planned. See [ROADMAP.md](ROADMAP.md).
+> **Work in progress.** The core check works (steps 0 to 9); the MCP server and the optional narrative layer are still planned. See [ROADMAP.md](ROADMAP.md).
 
 ## Quickstart
 
@@ -15,6 +15,10 @@ uv run forensics AAPL                                     # writes AAPL-forensic
 No API key is needed, all data comes from SEC EDGAR. Other formats: `--format md` or `--format json`;
 see [Report and CLI](docs/report.md) for all options.
 
+Optional: `pip install 'stock-forensics[prices]'` adds market value, valuation and technicals
+(prices from Yahoo Finance via yfinance); without it everything else works unchanged. See
+[Market data](docs/market.md).
+
 ## Docs
 
 - [Data model](docs/data-model.md): every number is a `Value` with unit, period and source
@@ -25,6 +29,7 @@ see [Report and CLI](docs/report.md) for all options.
 - [Red flags from SEC filings](docs/red-flags.md): auditor changes, restatements, late filings, going concern, amendments
 - [Insider activity](docs/insiders.md): Form 4 purchases and sales, 10b5-1 plans, cluster buys
 - [Report and CLI](docs/report.md): `forensics AAPL`, traffic-light rules, HTML/Markdown/JSON output
+- [Market data](docs/market.md): optional prices (yfinance or Alpha Vantage), valuation, technicals, split handling
 
 ## Not financial advice
 

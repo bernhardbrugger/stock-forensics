@@ -9,7 +9,7 @@ Core idea: **every number is a `Value`** that carries its unit, its period and i
 | Model | Purpose | Key rules |
 |---|---|---|
 | `Unit` | Unit of a value: `USD`, `USD/share`, `shares`, `ratio`, `percent`, `days`, `count`, `score` | Amounts are in absolute units, never thousands or millions. `ratio` means 0.25 = 25 %, `percent` means 25 = 25 %. |
-| `Source` | Where a value came from: `provider`, `endpoint`, `form_type`, `accession_number`, `xbrl_concept`, `retrieved_at` | `retrieved_at` must be timezone-aware. `accession_number` must look like `0000320193-23-000106`. |
+| `Source` | Where a value came from: `provider`, `endpoint`, `form_type`, `accession_number`, `xbrl_concept`, `filed` (filing date, optional), `retrieved_at` | `retrieved_at` must be timezone-aware. `accession_number` must look like `0000320193-23-000106`. |
 | `Period` | `fiscal_year`, `quarter` (1-4, `None` = full year), `start`, `end` | `start` is `None` for point-in-time values (balance sheet). `start` must not be after `end`. |
 | `Value` | `value`, `unit`, `period`, `source`, `note`, `inputs` | `value` is a `Decimal` or `None`. `None` requires a non-empty `note`. `source` is always required; for gaps it says where the number was looked for. `inputs` (default empty) holds the values a computed number was calculated from, each with its own source; see below. |
 | `Company` | `ticker`, `cik`, `name`, `sic_code`, `industry` | Ticker is upper-cased. `cik_padded` gives the 10-digit form used in SEC URLs. `sic_code` is 4 digits. |

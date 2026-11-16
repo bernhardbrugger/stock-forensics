@@ -228,7 +228,7 @@ def test_report_without_sections_still_renders(aapl_report: ForensicReport) -> N
 def test_every_ratio_metric_has_a_display_style() -> None:
     ratios = {s.name for s in ALL_SPECS if s.unit is Unit.RATIO}
     assert ratios <= set(METRIC_STYLE)
-    assert set(METRIC_STYLE.values()) <= {"percent", "multiple"}
+    assert set(METRIC_STYLE.values()) <= {"percent", "multiple", "number"}
 
 
 def test_number_formats(aapl_report: ForensicReport) -> None:

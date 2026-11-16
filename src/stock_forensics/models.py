@@ -46,6 +46,10 @@ class Source(_Frozen):
     form_type: str | None = Field(default=None, description='e.g. "10-K", "8-K", "4"')
     accession_number: str | None = Field(default=None, description="e.g. 0000320193-23-000106")
     xbrl_concept: str | None = Field(default=None, description='e.g. "us-gaap:Revenues"')
+    filed: date | None = Field(
+        default=None,
+        description="Filing date of the accession; needed to tell which splits a figure reflects",
+    )
     retrieved_at: datetime = Field(description="Timezone-aware retrieval timestamp")
 
     @field_validator("accession_number")

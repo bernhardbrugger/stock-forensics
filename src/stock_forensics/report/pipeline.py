@@ -24,8 +24,10 @@ from stock_forensics.insiders import DEFAULT_MONTHS
 from stock_forensics.insiders.aggregate import months_before
 from stock_forensics.insiders.form4 import raw_xml_url
 from stock_forensics.insiders.models import InsiderActivity
+from stock_forensics.market import MarketData, analyze_market
 from stock_forensics.metrics import Metrics, compute_metrics
 from stock_forensics.normalize.statements import Statements, build_statements
+from stock_forensics.providers.prices import PriceProvider
 from stock_forensics.providers.sec_edgar import SecEdgarClient, SecEdgarError
 from stock_forensics.providers.sec_models import Filing, Submissions
 from stock_forensics.report.models import ForensicReport
@@ -34,7 +36,7 @@ from stock_forensics.report.traffic import summarize
 from stock_forensics.scores import Scores, compute_scores
 
 Progress = Callable[[int, int, str], None]  # step number, number of steps, what happens now
-TOTAL_STEPS = 7
+TOTAL_STEPS = 9
 
 
 def _describe(error: Exception) -> str:
@@ -50,11 +52,15 @@ def analyze(
     progress: Progress | None = None,
     years: int = DEFAULT_YEARS,
     months: int = DEFAULT_MONTHS,
+    prices: PriceProvider | None = None,
+    prices_note: str | None = None,
 ) -> ForensicReport:
     """Run the full forensic check on one ticker.
 
-    Raises ``TickerNotFoundError`` for an unknown ticker and ``SecEdgarError`` if the filing
-    index cannot be loaded. Everything else ends up in ``ForensicReport.errors``.
+    ``prices`` is an optional price provider; without one the market sections are left out and
+    ``prices_note`` (why there is none) is shown instead. Raises ``TickerNotFoundError`` for an
+    unknown ticker and ``SecEdgarError`` if the filing index cannot be loaded. Everything else
+    ends up in ``ForensicReport.errors``.
     """
     as_of = as_of or date.today()
 
@@ -79,38 +85,58 @@ def analyze(
     except Exception as error:  # noqa: BLE001 - a failed section must not stop the report
         errors["statements"] = _describe(error)
 
-    step(4, "Computing metrics and forensic scores")
+    step(4, "Computing metrics")
     metrics: Metrics | None = None
-    scores: Scores | None = None
     if statements is None:
-        errors["metrics"] = errors["scores"] = "needs the financial statements, which are missing"
+        errors["metrics"] = "needs the financial statements, which are missing"
     else:
         try:
             metrics = compute_metrics(statements)
         except Exception as error:  # noqa: BLE001
             errors["metrics"] = _describe(error)
+
+    step(5, "Loading market data" if prices is not None else "Skipping market data")
+    market: MarketData | None = None
+    market_note = prices_note or "no price provider configured"
+    if prices is not None:
+        market_note = ""
+        try:
+            market = analyze_market(
+                company.ticker, prices, statements=statements, metrics=metrics, as_of=as_of
+            )
+        except Exception as error:  # noqa: BLE001
+            errors["market"] = _describe(error)
+
+    step(6, "Computing forensic scores")
+    scores: Scores | None = None
+    if statements is None:
+        errors["scores"] = "needs the financial statements, which are missing"
+    else:
         try:
             scores = compute_scores(
-                statements, sic_code=history.sic_code, industry=history.industry
+                statements,
+                sic_code=history.sic_code,
+                industry=history.industry,
+                market_cap=market.market_cap if market is not None else None,
             )
         except Exception as error:  # noqa: BLE001
             errors["scores"] = _describe(error)
 
-    step(5, "Checking filings for red flags")
+    step(7, "Checking filings for red flags")
     red_flags: RedFlags | None = None
     try:
         red_flags = _red_flags(client, history, as_of, since_flags)
     except Exception as error:  # noqa: BLE001
         errors["red_flags"] = _describe(error)
 
-    step(6, "Reading insider transactions (Form 4)")
+    step(8, "Reading insider transactions (Form 4)")
     insiders: InsiderActivity | None = None
     try:
         insiders = _insiders(client, history, as_of, months)
     except Exception as error:  # noqa: BLE001
         errors["insiders"] = _describe(error)
 
-    step(7, "Building the report")
+    step(9, "Building the report")
     summary = summarize(
         scores=scores,
         metrics=metrics,
@@ -134,6 +160,8 @@ def analyze(
         scores=scores,
         red_flags=red_flags,
         insiders=insiders,
+        market=market,
+        market_note=market_note or None,
         summary=summary,
         sources=collect_sources(company.cik, statements, red_flags),
         errors=errors,
