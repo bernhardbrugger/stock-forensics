@@ -44,8 +44,9 @@ GROUP_TITLES = {
     Group.GROWTH: "Growth",
     Group.CAPITAL_ALLOCATION: "Capital allocation",
 }
-# How a ratio is shown: "percent" (0.25 -> 25.0 %) or "multiple" (1.5 -> 1.50x). Every published
-# metric must be listed here (a test checks it), because the unit "ratio" alone does not tell.
+# How a ratio is shown: "percent" (0.25 -> 25.0 %), "multiple" (1.5 -> 1.50x) or "number"
+# (1.5). Every published metric must be listed here (a test checks it), because the unit
+# "ratio" alone does not tell.
 METRIC_STYLE: dict[str, str] = {
     "gross_margin": "percent",
     "operating_margin": "percent",
@@ -71,6 +72,20 @@ METRIC_STYLE: dict[str, str] = {
     "share_count_change_yoy": "percent",
     "rnd_ratio": "percent",
     "accruals_ratio": "percent",  # the forensic score of the same name
+    # market data (valuation and technicals)
+    "pe": "multiple",
+    "ev_ebitda": "multiple",
+    "fcf_yield": "percent",
+    "momentum_3m": "percent",
+    "momentum_6m": "percent",
+    "momentum_12m": "percent",
+    "momentum_12_1": "percent",
+    "volatility_1y": "percent",
+    "max_drawdown_1y": "percent",
+    "max_drawdown_3y": "percent",
+    "dist_52w_high": "percent",
+    "dist_52w_low": "percent",
+    "beta_2y": "number",
 }
 KEY_FINANCIALS = (
     "revenue",
@@ -131,8 +146,11 @@ def format_value(value: Value | None, name: str | None = None) -> str:
         case Unit.SCORE:
             return format_number(number, 2)
         case Unit.RATIO:
-            if METRIC_STYLE.get(name or "", "multiple") == "percent":
+            style = METRIC_STYLE.get(name or "", "multiple")
+            if style == "percent":
                 return f"{float(number) * 100:.1f}%"
+            if style == "number":
+                return f"{float(number):.2f}"
             return f"{float(number):.2f}x"
     return format_number(number)  # pragma: no cover - all units are handled above
 
@@ -334,6 +352,40 @@ def insider_view(report: ForensicReport) -> dict[str, Any] | None:
     }
 
 
+@dataclass(frozen=True)
+class MarketRow:
+    label: str
+    text: str
+    basis: str  # the basis of a number, or the reason for a gap
+    tooltip: str
+    missing: bool
+
+
+def market_view(report: ForensicReport) -> dict[str, Any] | None:
+    data = report.market
+    if data is None:
+        return None
+
+    def rows(group: str) -> tuple[MarketRow, ...]:
+        return tuple(
+            MarketRow(
+                label=m.label,
+                text=format_value(m.value, m.name),
+                basis=m.value.note or "",
+                tooltip=m.formula + "\n" + provenance(m.value),
+                missing=m.value.value is None,
+            )
+            for m in data.of_group(group)
+        )
+
+    return {
+        "data": data,
+        "price": format_value(data.price),
+        "valuation": rows("valuation"),
+        "technicals": rows("technicals"),
+    }
+
+
 def build_context(report: ForensicReport) -> dict[str, Any]:
     return {
         "r": report,
@@ -341,6 +393,7 @@ def build_context(report: ForensicReport) -> dict[str, Any]:
         "metric_tables": metric_tables(report),
         "scores": score_views(report),
         "insider": insider_view(report),
+        "market": market_view(report),
         "light_labels": LIGHT_LABELS,
     }
 

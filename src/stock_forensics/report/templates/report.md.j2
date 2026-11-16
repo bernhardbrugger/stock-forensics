@@ -136,6 +136,29 @@ No open-market purchases or sales in this period.
 
 {% endif %}
 {% endif %}
+## Market data
+
+{% if market is none %}
+Not available: {{ r.errors.get('market') or r.market_note or 'no price data' }}.
+
+{% else %}
+Prices from {{ market.data.provider }}, latest close {{ market.data.price_date | iso }} ({{ market.price }}). Information only, no traffic light.
+
+{% for title, rows in [('Valuation', market.valuation), ('Technicals', market.technicals)] %}
+**{{ title }}**
+
+| Metric | Value | Basis |
+| --- | --- | --- |
+{% for row in rows %}
+| {{ row.label | md }} | {{ row.text | md }} | {{ row.basis | md }} |
+{% endfor %}
+
+{% endfor %}
+{% for note in market.data.notes %}
+- {{ note }}
+{% endfor %}
+
+{% endif %}
 ## Key figures
 
 {% for t in ([financials] if financials else []) + (metric_tables | list) %}

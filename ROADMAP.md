@@ -195,10 +195,10 @@ Plan first, including a sketch of the report layout (sections, traffic-light log
 ### Step 9: Market data & technicals (optional)
 **Goal:** Add price context without breaking the core principle "works without keys".
 
-- [ ] Pluggable price provider (interface), implementations: `yfinance` (optional extra), Alpha Vantage (with key)
-- [ ] Market cap for Altman Z (original) and valuation metrics (P/E, EV/EBITDA, FCF yield)
-- [ ] Technicals: momentum, volatility, max drawdown, beta vs. S&P 500, distance to 52-week high/low
-- [ ] Without a price provider: these sections show "n/a" with a note
+- [x] Pluggable price provider (interface), implementations: `yfinance` (optional extra), Alpha Vantage (with key)
+- [x] Market cap for Altman Z (original) and valuation metrics (P/E, EV/EBITDA, FCF yield)
+- [x] Technicals: momentum, volatility, max drawdown, beta vs. S&P 500, distance to 52-week high/low
+- [x] Without a price provider: these sections show "n/a" with a note
 
 **Done when:** With the extra installed, the valuation and technicals sections are filled, and without it everything still works.
 

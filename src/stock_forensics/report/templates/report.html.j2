@@ -292,6 +292,25 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% endif %}
 {% endif %}
 
+<h2 id="market">Market data</h2>
+{% if market is none %}
+<div class="notice">Not available: {{ r.errors.get('market') or r.market_note or 'no price data' }}.</div>
+{% else %}
+{% set d = market.data %}
+<p class="muted">Prices from {{ d.provider }}, latest close {{ d.price_date | iso }} ({{ market.price }}). Information only: this report does not say whether a price is high or low, and none of these numbers has a traffic light.</p>
+{% for title, rows in [('Valuation', market.valuation), ('Technicals', market.technicals)] %}
+<div class="scroll"><table>
+  <caption class="muted small" style="text-align:left;caption-side:top">{{ title }}</caption>
+  <thead><tr><th>Metric</th><th class="num">Value</th><th>Basis</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr><td>{{ row.label }}</td><td class="num{{ ' missing' if row.missing else '' }}" title="{{ row.tooltip }}">{{ row.text }}</td><td class="small muted">{{ row.basis }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% endfor %}
+{% for note in d.notes %}<p class="small muted">{{ note }}</p>{% endfor %}
+{% endif %}
+
 <h2 id="metrics">Key figures</h2>
 <p class="muted">Computed from the reported statements. Hover over a figure for the formula, inputs and filing. &ldquo;n/a&rdquo; means it could not be computed; the tooltip says why.</p>
 {% if financials %}{{ table(financials) }}{% endif %}

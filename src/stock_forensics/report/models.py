@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict
 
 from stock_forensics.flags.models import RedFlags
 from stock_forensics.insiders.models import InsiderActivity
+from stock_forensics.market.models import MarketData
 from stock_forensics.metrics.engine import Metrics
 from stock_forensics.normalize.statements import Statements
 from stock_forensics.scores.base import Scores
@@ -85,6 +86,8 @@ class ForensicReport(_Frozen):
     scores: Scores | None = None
     red_flags: RedFlags | None = None
     insiders: InsiderActivity | None = None
+    market: MarketData | None = None
+    market_note: str | None = None  # why there is no market data, if no provider was used
     summary: Summary
     sources: tuple[SourceEntry, ...] = ()
     errors: dict[str, str] = {}  # section -> why it is missing

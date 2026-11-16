@@ -53,7 +53,7 @@ X1 = working capital / total assets, X2 = retained earnings / total assets, X3 =
 | **Z'** | manufacturers without market data (book-value version) | 0.717 X1 + 0.847 X2 + 3.107 X3 + 0.420 X4 + 0.998 X5, X4 = book equity / total liabilities | 1.23 / 2.90 |
 | **Z''** | everything else (non-manufacturers) | 6.56 X1 + 3.26 X2 + 6.72 X3 + 1.05 X4, X4 = book equity / total liabilities | 1.10 / 2.60 |
 
-The result states which variant was used and why. `compute_scores(..., market_cap={fiscal_year: Value})` lets manufacturers use the original Z; market data arrives with step 9. A value exactly on a threshold belongs to the grey zone. With an unknown SIC code Z'' is used and the result says so.
+The result states which variant was used and why. `compute_scores(..., market_cap={fiscal_year: Value})` lets manufacturers use the original Z; the report fills it from the optional price provider (see [market.md](market.md)). A value exactly on a threshold belongs to the grey zone. With an unknown SIC code Z'' is used and the result says so.
 
 ### Piotroski signals
 

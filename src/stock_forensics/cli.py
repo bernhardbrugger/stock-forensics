@@ -17,6 +17,7 @@ from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskID, TextColumn
 
 from stock_forensics import __version__
+from stock_forensics.providers.prices import PriceUnavailableError, select_provider
 from stock_forensics.providers.sec_edgar import (
     USER_AGENT_ENV,
     MissingUserAgentError,
@@ -26,6 +27,7 @@ from stock_forensics.providers.sec_edgar import (
 )
 from stock_forensics.report import ForensicReport, analyze, render
 from stock_forensics.report.models import Light
+from stock_forensics.report.pipeline import TOTAL_STEPS
 from stock_forensics.report.render import LIGHT_LABELS
 
 EXIT_FAILED = 1
@@ -36,6 +38,13 @@ app = typer.Typer(
     pretty_exceptions_enable=False,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
+
+
+class PricesChoice(StrEnum):
+    AUTO = "auto"
+    YFINANCE = "yfinance"
+    ALPHAVANTAGE = "alphavantage"
+    NONE = "none"
 
 
 class OutputFormat(StrEnum):
@@ -100,7 +109,7 @@ class _Reporter:
                 transient=True,
             )
             self._progress.start()
-            self._task = self._progress.add_task("Starting", total=7)
+            self._task = self._progress.add_task("Starting", total=TOTAL_STEPS)
         return self
 
     def __exit__(self, *exc: object) -> None:
@@ -132,6 +141,17 @@ def main(
             "--no-cache", help="Do not read cached SEC responses (still refreshes the cache)."
         ),
     ] = False,
+    prices: Annotated[
+        PricesChoice,
+        typer.Option(
+            "--prices",
+            help=(
+                "Price provider for market value, valuation and technicals. 'auto' uses "
+                "yfinance if installed, else Alpha Vantage if ALPHAVANTAGE_API_KEY is set, "
+                "else none. 'none' keeps the run to SEC data only."
+            ),
+        ),
+    ] = PricesChoice.AUTO,
     version: Annotated[
         bool,
         typer.Option(
@@ -158,8 +178,21 @@ def main(
         raise typer.Exit(EXIT_USAGE) from None
 
     try:
+        provider, prices_note = select_provider(prices.value)
+    except PriceUnavailableError as error:
+        client.close()
+        err.print(f"[red]{error}[/red]")
+        raise typer.Exit(EXIT_USAGE) from None
+
+    try:
         with client, _Reporter(err) as reporter:
-            report = analyze(ticker, client=client, progress=reporter)
+            report = analyze(
+                ticker,
+                client=client,
+                progress=reporter,
+                prices=provider,
+                prices_note=prices_note,
+            )
     except TickerNotFoundError as error:
         err.print(f"[red]{error}[/red]")
         raise typer.Exit(EXIT_FAILED) from None
@@ -201,6 +234,12 @@ def _print_result(console: Console, report: ForensicReport, path: Path | None) -
         console.print(
             f"  {area.label}: {LIGHT_LABELS[area.light]} ({area.summary})", highlight=False
         )
+    if report.market is not None:
+        console.print(
+            f"  Market data: {report.market.provider}, latest close {report.market.price_date}"
+        )
+    elif report.market_note and "market" not in report.errors:
+        console.print(f"  Market data: not used ({report.market_note})", highlight=False)
     if report.errors:
         console.print(f"[yellow]Missing sections: {', '.join(sorted(report.errors))}[/yellow]")
     if path is not None:

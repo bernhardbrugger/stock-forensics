@@ -11,6 +11,7 @@ uv run forensics MSFT --format md           # ./MSFT-forensics.md
 uv run forensics NVDA --format json --out nvda.json
 uv run forensics AAPL --format md --out -   # to stdout, progress stays on stderr
 uv run forensics AAPL --no-cache            # ignore cached SEC responses (cache is still refreshed)
+uv run forensics AAPL --prices none         # SEC data only (default: auto, see market.md)
 ```
 
 `SEC_USER_AGENT` can also live in a `.env` file in the current folder (`SEC_USER_AGENT="name you@example.com"`).
@@ -41,9 +42,11 @@ section: `statements`, `metrics`, `scores`, `red_flags`, `insiders`, plus `summa
 
 ## Pipeline
 
-Seven steps, shown as progress on stderr: look up the ticker, load the filing index, build the
-statements, compute metrics and scores, check filings for red flags, read the Form 4s, build the
-report. The filing index is loaded once and shared by red flags and insiders.
+Nine steps, shown as progress on stderr: look up the ticker, load the filing index, build the
+statements, compute metrics, load market data (skipped without a price provider), compute the
+scores, check filings for red flags, read the Form 4s, build the report. The filing index is
+loaded once and shared by red flags and insiders. Market data comes before the scores because the
+market value of equity decides which Altman Z variant a manufacturer gets.
 
 A section that fails does not stop the others. It is `None` in the report, `errors` says why, and
 the HTML shows a notice at the top. Only an unknown ticker or an unreadable filing index stops the
@@ -88,6 +91,8 @@ Every light is a colored dot plus a text label ("Clear", "Caution", "Warning", "
   table of what each check examined, so "no flag" can be told apart from "not checked".
 * Insider activity: totals, per person, open-market transactions (newest 30) with links to the
   Form 4s; the rest is in the JSON export.
+* Market data (only with a price provider, see [market.md](market.md)): valuation and technicals,
+  information only, with no traffic light. Without a provider the section says why it is missing.
 * Key figures: ten key financials and the 25 metrics for up to five fiscal years. Hover over a
   figure for its formula, inputs, filing and XBRL concept; "n/a" explains itself the same way.
 * Sources: every filing the statement figures and red flags come from, with links.
@@ -99,7 +104,8 @@ follows the light or dark mode of the system and can be printed, archived or ema
 
 * The overall light is a screening result, not a verdict. A grey-zone Altman Z or a high accruals
   ratio is a reason to read the filing.
-* Without market data (planned for step 9) manufacturers get the book-value Altman Z'.
+* Without a price provider manufacturers get the book-value Altman Z' instead of the original Z.
+  The overall light can therefore differ between a run with and a run without prices.
 * Form 4 transactions beyond the newest 30 open-market rows, and people beyond the top 10, are only
   in the JSON export.
 * Form 4 sources are not repeated in the source list; each transaction links to its own filing.

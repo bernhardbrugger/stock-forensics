@@ -15,6 +15,7 @@ from stock_forensics.providers.sec_edgar import (
 )
 from stock_forensics.report import ForensicReport, analyze
 from stock_forensics.report.models import Light
+from stock_forensics.report.pipeline import TOTAL_STEPS
 from stock_forensics.report.sources import filing_url
 from tests.report_fixtures import AAPL_CIK, AS_OF, USER_AGENT, FakeSec, make_client
 
@@ -60,8 +61,8 @@ def test_progress_is_reported_in_order(tmp_path: Path) -> None:
     steps: list[tuple[int, int, str]] = []
     with make_client(tmp_path, FakeSec()) as client:
         analyze("AAPL", client=client, as_of=AS_OF, progress=lambda *a: steps.append(a))
-    assert [s[0] for s in steps] == [1, 2, 3, 4, 5, 6, 7]
-    assert {s[1] for s in steps} == {7}
+    assert [s[0] for s in steps] == list(range(1, TOTAL_STEPS + 1))
+    assert {s[1] for s in steps} == {TOTAL_STEPS}
     assert all(s[2] for s in steps)
 
 
