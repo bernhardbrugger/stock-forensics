@@ -83,7 +83,8 @@ def test_html_tells_what_a_reader_needs(html: str) -> None:
     assert "<title>AAPL forensic report</title>" in html
     assert "Apple Inc." in html
     assert DISCLAIMER in html
-    assert "1 caution to look at, no warnings." in html
+    assert "Mostly fine, but 1 thing worth a look." in html
+    assert '<h3 style="margin-top:1.5rem">In short</h3>' in html
     for heading in ("Forensic scores", "Red flags in SEC filings", "Insider activity", "Sources"):
         assert heading in html
     assert "prefers-color-scheme: dark" in html  # dark mode
@@ -96,7 +97,7 @@ def test_lights_are_never_only_a_color(html: str) -> None:
         html,
     )
     assert badges
-    assert set(badges) <= {"Clear", "Caution", "Warning", "Not available", "Information"} | {
+    assert set(badges) <= {"Looks fine", "Worth a look", "Alarm", "Not available", "FYI"} | {
         "High severity",
         "Medium severity",
         "Low severity",
@@ -149,7 +150,7 @@ def test_markdown_is_complete_and_has_valid_tables(aapl_report: ForensicReport) 
     assert md.startswith("# Apple Inc. (AAPL): forensic report")
     assert DISCLAIMER in md
     for heading in (
-        "## Result: Caution",
+        "## Result: Worth a look",
         "## Forensic scores",
         "## Red flags in SEC filings",
         "## Insider activity (Form 4)",
@@ -247,3 +248,52 @@ def test_number_formats(aapl_report: ForensicReport) -> None:
     assert format_value(aapl_report.metrics.latest("current_ratio"), "current_ratio").endswith("x")
     assert format_value(aapl_report.statements.annual("eps_diluted", 2026)) == "$8.98"
     assert format_value(aapl_report.statements.annual("revenue", 2026)) == "$478.8B"
+
+
+def micron_like(aapl_report: ForensicReport) -> ForensicReport:
+    """Apple's report with one red Beneish screen after a +256 % revenue year (the Micron case)."""
+    from stock_forensics.report.summary import summarize
+    from tests.test_report_traffic import RED, all_green, with_growth, with_zones
+
+    assert aapl_report.scores is not None and aapl_report.metrics is not None
+    scores = with_zones(all_green(aapl_report.scores), beneish_m=RED["beneish_m"])
+    metrics = with_growth(aapl_report.metrics, aapl_report.metrics.fiscal_years[-1], "2.56")
+    summary = summarize(
+        scores=scores,
+        metrics=metrics,
+        red_flags=aapl_report.red_flags,
+        insiders=aapl_report.insiders,
+        as_of=aapl_report.as_of,
+        errors={},
+    )
+    return aapl_report.model_copy(update={"scores": scores, "metrics": metrics, "summary": summary})
+
+
+def test_a_lone_red_screen_is_explained_not_shouted(aapl_report: ForensicReport) -> None:
+    report = micron_like(aapl_report)
+    assert report.summary.overall is Light.YELLOW
+    html = render_html(report)
+    assert 'class="verdict yellow"' in html
+    assert "Alarm" not in html.split("Forensic scores</h2>")[0].split("</style>")[1]
+    assert "one screen alone is not a verdict" in html
+    assert "Revenue moved +256% in FY2026" in html
+    assert "The model itself reads this as red." in html  # on the score card
+    assert "Biggest driver" in html
+    md = render_markdown(report)
+    assert "## Result: Worth a look" in md and "In short:" in md
+    assert "one screen alone is not a verdict" in md
+
+
+def test_score_cards_show_what_counts_and_what_the_model_says(aapl_report: ForensicReport) -> None:
+    from stock_forensics.report.render import score_views
+
+    views = {v.name: v for v in score_views(micron_like(aapl_report))}
+    assert (views["beneish_m"].light, views["beneish_m"].own_reading) == (Light.YELLOW, Light.RED)
+    assert (views["altman_z"].light, views["altman_z"].own_reading) == (Light.GREEN, Light.GREEN)
+
+
+def test_every_section_has_a_plain_words_line(aapl_report_market: ForensicReport) -> None:
+    html = render_html(aapl_report_market)
+    assert html.count("In plain words:") == 5
+    md = render_markdown(aapl_report_market)
+    assert md.count("In plain words:") >= 2

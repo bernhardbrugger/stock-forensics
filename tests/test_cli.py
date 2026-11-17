@@ -65,7 +65,8 @@ def test_default_run_writes_an_html_report(fake_sec: dict[str, object], tmp_path
     for step in range(1, TOTAL_STEPS + 1):
         assert f"[{step}/{TOTAL_STEPS}]" in result.stderr
     # With market value the original Altman Z applies and is clear; prices never set a light.
-    assert "AAPL Apple Inc.: Clear." in result.stderr
+    assert "AAPL Apple Inc.: Looks fine." in result.stderr
+    assert "all look fine" in result.stderr  # the short version is on screen too
     assert "Market data: fakeprices, latest close 2026-11-12" in result.stderr
     assert fake_sec["prices_choice"] == "auto"
     assert "AAPL-forensics.html" in result.stderr

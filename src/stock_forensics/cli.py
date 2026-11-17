@@ -230,10 +230,8 @@ def _print_result(console: Console, report: ForensicReport, path: Path | None) -
         f"[bold]{report.ticker}[/bold] {report.company_name}: "
         f"[{style}]{LIGHT_LABELS[light]}[/{style}]. {report.summary.headline}"
     )
-    for area in report.summary.areas:
-        console.print(
-            f"  {area.label}: {LIGHT_LABELS[area.light]} ({area.summary})", highlight=False
-        )
+    for sentence in report.summary.takeaways:
+        console.print(f"  - {sentence}", highlight=False)
     if report.market is not None:
         console.print(
             f"  Market data: {report.market.provider}, latest close {report.market.price_date}"

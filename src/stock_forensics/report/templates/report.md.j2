@@ -8,6 +8,15 @@ CIK {{ r.cik }}{% if r.industry %} | {{ r.industry }}{% if r.sic_code %} (SIC {{
 
 {{ r.summary.headline }}
 
+{% if r.summary.takeaways %}
+In short:
+
+{% for sentence in r.summary.takeaways %}
+- {{ sentence }}
+{% endfor %}
+
+{% endif %}
+
 | Area | Light | Summary |
 | --- | --- | --- |
 {% for area in r.summary.areas %}
@@ -19,7 +28,8 @@ CIK {{ r.cik }}{% if r.industry %} | {{ r.industry }}{% if r.sic_code %} (SIC {{
 What to look at:
 
 {% for reason in shown %}
-- **{{ reason.light | label }}**: {{ reason.text }}
+- **{{ reason.light | label }}**: {{ reason.text }}{% if reason.hint %} _{{ reason.hint }}_{% endif %}
+
 {% endfor %}
 
 {% endif %}
@@ -32,6 +42,8 @@ What to look at:
 
 {% endif %}
 ## Forensic scores
+
+In plain words: four standard checks on the numbers of the latest annual report. Each has a known false-alarm rate, so one flagged check is a reason to look closer, not a verdict.
 
 {% if not scores %}
 Not available{% if r.errors.get('scores') %}: {{ r.errors['scores'] }}{% endif %}.
@@ -74,6 +86,8 @@ Known limitations:
 {% endif %}
 {% endfor %}
 ## Red flags in SEC filings
+
+In plain words: things companies have to announce that rarely happen to healthy firms (auditor quits, old numbers withdrawn). One serious one is enough for a red light.
 
 {% if r.red_flags is none %}
 Not available{% if r.errors.get('red_flags') %}: {{ r.errors['red_flags'] }}{% endif %}.

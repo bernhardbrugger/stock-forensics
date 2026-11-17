@@ -208,7 +208,105 @@ Step 9: market data & technicals (see ROADMAP.md). Plan first, including the pro
 
 ---
 
-### Step 10: MCP server
+### Step 10: Tone & traffic-light rework
+**Goal:** The result reads like a person explaining it, and a single noisy model no longer shouts "alarm". Triggered by Micron: Beneish flagged a hyper-growth year (revenue +256 %) while the other three screens were clean.
+
+- [x] Scores are screens, not verdicts: a lone red screen only counts as "worth a look"; red needs two agreeing screens, a hard filing flag still needs no second opinion
+- [x] Hint for Beneish and accruals when revenue moved by 25 % or more; the biggest Beneish driver is named in plain words
+- [x] "In short" summary assembled from the findings by fixed rules (no LLM), a plain-words line per section, friendlier light labels
+- [x] Principle 6 in CLAUDE.md refined: valuation is put in context, but never as a buy or sell call
+
+**Done when:** Micron reads "worth a look" with the reason explained, and a company with a real warning (SMCI: auditor resigned) stays red.
+
+```text
+Step 10: tone & traffic-light rework (see ROADMAP.md). Plan first.
+```
+
+---
+
+### Step 11: Technical indicators for investors
+**Goal:** Trend and momentum on weekly and monthly horizons, no day trading. Computed by us from the closes we already have, so it costs no extra API calls.
+
+- [ ] Price vs. SMA 50 and SMA 200, with the dates of the latest golden or death cross
+- [ ] RSI (14, weekly) and MACD (weekly), plain-words reading ("not stretched", "overheated")
+- [ ] Relative strength against the S&P 500 over 6 and 12 months
+- [ ] Price chart as inline SVG in the HTML (price, SMA 50/200, drawdown shading)
+- [ ] Gaps explicit when the history is too short (free Alpha Vantage keys return only 100 days)
+
+**Done when:** The Technicals section shows trend, momentum and relative strength in plain words, with a chart, and every number has its formula.
+
+```text
+Step 11: technical indicators for investors (see ROADMAP.md). Weekly and monthly horizons only. Plan first.
+```
+
+---
+
+### Step 12: Analyst opinions & price targets
+**Goal:** What the professionals think, clearly labelled as third-party opinion.
+
+- [ ] Consensus rating counts, mean, high and low price target, number of analysts (yfinance, free; Alpha Vantage overview fields if the endpoint provides them, verify first)
+- [ ] Target versus current price shown as information, with the date of the data
+- [ ] EPS and revenue estimates and their revisions, if the providers deliver them
+- [ ] Missing data is "n/a" with the reason, never a guess
+
+**Done when:** The section shows consensus, spread of targets and how many analysts stand behind them, with the provider named for every number.
+
+```text
+Step 12: analyst opinions & price targets (see ROADMAP.md). Verify which provider fields exist before building. Plan first.
+```
+
+---
+
+### Step 13: News & sentiment
+**Goal:** What has been written about the company in the last months, and in which tone.
+
+- [ ] News and sentiment from Alpha Vantage `NEWS_SENTIMENT` (key from the environment, cached; the free key is 25 requests per day, so one request per analysis)
+- [ ] Aggregates over 30 and 90 days: number of articles, average sentiment, share of positive and negative articles, main topics
+- [ ] The most relevant headlines with links and dates
+- [ ] Sentiment values are the provider's, labelled as such; no number is produced by a language model
+- [ ] Without a key: the section says why it is missing
+
+**Done when:** With a key the section shows the tone of the last 30 and 90 days with headlines; without it everything runs as before.
+
+```text
+Step 13: news & sentiment (see ROADMAP.md). Provider scores only, aggregate them in code. Plan first.
+```
+
+---
+
+### Step 14: Valuation in context
+**Goal:** Is the stock expensive or cheap compared with its own past and with similar companies, without buy or sell words.
+
+- [ ] P/E, EV/EBITDA and FCF yield against the company's own 5-year history (percentile)
+- [ ] The same against a small peer set (same SIC code), data from SEC and prices
+- [ ] A transparent DCF range (conservative, base, optimistic) with every assumption visible and a sensitivity table, labelled as a model result, not a price target
+- [ ] Plain wording ("pricier than 80 % of the last five years"), never "buy" or "undervalued, buy now"
+
+**Done when:** The valuation section answers "expensive or cheap compared with what?" in one sentence per yardstick, and a reader can change no assumption without seeing it.
+
+```text
+Step 14: valuation in context (see ROADMAP.md). Principle 6 applies: put valuation in context, never issue a call. Plan first, including the DCF assumptions.
+```
+
+---
+
+### Step 15: Correlation, peers & DTW (advanced)
+**Goal:** How does the stock move together with the market, its sector and its peers, and which companies have behaved similarly.
+
+- [ ] Correlation and beta against the S&P 500, a sector ETF and peers, also rolling over time
+- [ ] DTW (dynamic time warping) similarity of price paths to find lookalikes, with a plain explanation and its limits
+- [ ] Peer set from the SIC code, adjustable
+- [ ] Everything computed from closes, no extra API calls beyond the price history
+
+**Done when:** The report names the closest peers by price behaviour and shows correlation with the index and sector, with the method explained in two sentences.
+
+```text
+Step 15: correlation, peers & DTW (see ROADMAP.md). Advanced. Plan first.
+```
+
+---
+
+### Step 16: MCP server
 **Goal:** Agents like Claude can use the analysis directly. This is also a distribution channel through MCP directories.
 
 - [ ] MCP server with FastMCP: tools `analyze_stock`, `get_forensic_scores`, `get_red_flags`, `get_insider_activity`, `get_metrics`
@@ -219,12 +317,12 @@ Step 9: market data & technicals (see ROADMAP.md). Plan first, including the pro
 **Done when:** Asked "Run a forensic analysis of NVDA", Claude in Claude Desktop calls the tools and answers with sources.
 
 ```text
-Step 10: MCP server (see ROADMAP.md). Use the official MCP Python SDK (FastMCP). Plan first.
+Step 16: MCP server (see ROADMAP.md). Use the official MCP Python SDK (FastMCP). Plan first.
 ```
 
 ---
 
-### Step 11: LLM summary with number guard (optional)
+### Step 17: LLM summary with number guard (optional)
 **Goal:** A readable interpretation, without invented numbers.
 
 - [ ] Optional extra for Anthropic or OpenAI, key from the environment
@@ -236,15 +334,14 @@ Step 10: MCP server (see ROADMAP.md). Use the official MCP Python SDK (FastMCP).
 **Done when:** The guard reliably catches a deliberately manipulated text.
 
 ```text
-Step 11: LLM summary with number guard (see ROADMAP.md). Plan first, especially for the number guard.
+Step 17: LLM summary with number guard (see ROADMAP.md). Plan first, especially for the number guard.
 ```
 
 ---
 
-### Step 12: News & earnings calls (optional)
+### Step 18: Earnings calls & earnings history (optional)
 **Goal:** The logic from my `DeepStockResearch` notebook as a clean module.
 
-- [ ] News sentiment via Alpha Vantage (with key), aggregated over 30/90 days
 - [ ] Earnings call transcripts (FMP with key): tone, evasive answers, guidance changes
 - [ ] Earnings history: surprises vs. expectations, price reaction
 - [ ] Everything clearly marked "optional, requires key"
@@ -252,14 +349,14 @@ Step 11: LLM summary with number guard (see ROADMAP.md). Plan first, especially 
 **Done when:** With keys, the sections appear; without keys, everything runs as before.
 
 ```text
-Step 12: news & earnings calls (see ROADMAP.md). Use my DeepStockResearch_FINAL notebook as a reference (fetch_news_sentiment, fetch_transcript, analyze_transcript ...). Plan first.
+Step 18: earnings calls & earnings history (see ROADMAP.md). Use my DeepStockResearch_FINAL notebook as a reference (fetch_transcript, analyze_transcript ...). News sentiment is step 13. Plan first.
 ```
 
 ---
 
 ## Phase 3: Launch
 
-### Step 13: Docs, demo & release
+### Step 19: Docs, demo & release
 **Goal:** The repo convinces within 10 seconds.
 
 - [ ] README: one-line pitch, demo GIF at the top, quickstart in 3 commands, sample report, methodology of the scores with sources, limitations, not financial advice
@@ -273,13 +370,12 @@ Step 12: news & earnings calls (see ROADMAP.md). Use my DeepStockResearch_FINAL 
 **Done when:** A stranger gets from the README to their first own report in under 2 minutes.
 
 ```text
-Step 13: docs, demo & release (see ROADMAP.md). Plan first, including the README structure.
+Step 19: docs, demo & release (see ROADMAP.md). Plan first, including the README structure.
 ```
 
 ---
 
 ## Ideas for later (not part of the plan)
-- Comparison with industry peers (same SIC code)
 - Watchlist mode: several tickers, changes since the last run
 - Historical review: would the scores have caught past scandals? (as a blog post / notebook)
 - Connection to `deepstock-bot` (insider alerts) and `capitol-street-bets`
