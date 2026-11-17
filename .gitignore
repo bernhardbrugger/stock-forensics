@@ -26,3 +26,7 @@ htmlcov/
 Thumbs.db
 .idea/
 .vscode/
+# Generated reports (forensics TICKER writes TICKER-forensics.html/md/json)
+*-forensics.html
+*-forensics.md
+*-forensics.json

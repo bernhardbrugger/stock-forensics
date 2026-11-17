@@ -69,6 +69,10 @@ ul.reasons li { margin: .25rem 0; }
 .notice { background: var(--card); border: 1px dashed var(--muted); border-radius: 4px;
   padding: .7rem .9rem; margin: .75rem 0; }
 .notice.error { border-color: var(--red); }
+ul.short { margin: .4rem 0 0; padding-left: 1.2rem; font-size: 1.05rem; }
+ul.short li { margin: .35rem 0; }
+.hint { color: var(--muted); font-size: .88rem; margin: .2rem 0 0; }
+.plain { background: var(--card); border-left: 3px solid var(--rule); padding: .5rem .8rem; margin: .5rem 0 .8rem; }
 .disclaimer { font-weight: 600; }
 .card { background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
   padding: 1rem 1.1rem; margin: .9rem 0; }
@@ -133,12 +137,21 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 <section class="verdict {{ r.summary.overall }}" aria-label="Overall result">
   <div>{{ badge(r.summary.overall, true) }}</div>
   <div>
-    <div class="muted small">Overall: the worst light of the forensic scores and the filing red flags</div>
+    <div class="muted small">Overall: the worst light of the forensic scores and the filing red flags. One red screen on its own only counts as &ldquo;worth a look&rdquo;.</div>
     <p class="headline">{{ r.summary.headline }}</p>
   </div>
 </section>
 
 <p class="notice disclaimer">{{ r.disclaimer }}</p>
+
+{% if r.summary.takeaways %}
+<h3 style="margin-top:1.5rem">In short</h3>
+<ul class="short">
+{% for sentence in r.summary.takeaways %}
+  <li>{{ sentence }}</li>
+{% endfor %}
+</ul>
+{% endif %}
 
 <div class="areas">
 {% for area in r.summary.areas %}
@@ -155,7 +168,7 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 <h3 style="margin-top:1.5rem">What to look at</h3>
 <ul class="reasons">
 {% for reason in shown %}
-  <li>{{ badge(reason.light) }} {{ reason.text }} <a class="small" href="#{{ reason.section }}">details</a></li>
+  <li>{{ badge(reason.light) }} {{ reason.text }} <a class="small" href="#{{ reason.section }}">details</a>{% if reason.hint %}<div class="hint">{{ reason.hint }}</div>{% endif %}</li>
 {% endfor %}
 </ul>
 {% endif %}
@@ -168,7 +181,7 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% endif %}
 
 <h2 id="scores">Forensic scores</h2>
-<p class="muted">Four standard screens, computed from the latest annual report. A score is a prompt to look closer, not a verdict.</p>
+<p class="plain"><strong>In plain words:</strong> four standard checks on the numbers of the latest annual report. Each one has a known false-alarm rate, so one flagged check is a reason to look closer, not a verdict. Two or more agreeing checks are taken seriously.</p>
 {% if not scores %}
 <div class="notice">Not available{% if r.errors.get('scores') %}: {{ r.errors['scores'] }}{% endif %}.</div>
 {% endif %}
@@ -178,6 +191,9 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
     <h3>{{ s.label }} <span class="muted small">FY{{ s.fiscal_year }}</span></h3>
     <div>{{ badge(s.light) }}</div>
   </div>
+  {% if s.applicable and s.own_reading != s.light %}
+  <p class="hint">The model itself reads this as red. Because the other screens do not agree, it only counts as &ldquo;worth a look&rdquo;.</p>
+  {% endif %}
   {% if s.applicable %}
   <div class="total" {% if s.tooltip %}title="{{ s.tooltip }}"{% endif %}>{{ s.total }} <span class="small muted" style="font-family:var(--sans)">{{ s.zone }}</span></div>
   <p>{{ s.interpretation }}</p>
@@ -210,6 +226,7 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% endfor %}
 
 <h2 id="red-flags">Red flags in SEC filings</h2>
+<p class="plain"><strong>In plain words:</strong> things companies have to announce that rarely happen to healthy firms, such as the auditor quitting or the company saying its old numbers can no longer be trusted. These are events, not statistics, so one serious one is enough for a red light.</p>
 {% if r.red_flags is none %}
 <div class="notice">Not available{% if r.errors.get('red_flags') %}: {{ r.errors['red_flags'] }}{% endif %}.</div>
 {% else %}
@@ -246,6 +263,7 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% endif %}
 
 <h2 id="insiders">Insider activity (Form 4)</h2>
+<p class="plain"><strong>In plain words:</strong> what the people running the company do with their own shares. Buying with their own money is a mild positive hint; selling is common and usually planned, so it only counts when it is unusual.</p>
 {% if insider is none %}
 <div class="notice">Not available{% if r.errors.get('insiders') %}: {{ r.errors['insiders'] }}{% endif %}.</div>
 {% else %}
@@ -293,6 +311,7 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% endif %}
 
 <h2 id="market">Market data</h2>
+<p class="plain"><strong>In plain words:</strong> how the stock is priced and how it has moved. This gives context and has no traffic light: a price being high or low is not a warning sign by itself.</p>
 {% if market is none %}
 <div class="notice">Not available: {{ r.errors.get('market') or r.market_note or 'no price data' }}.</div>
 {% else %}
@@ -312,6 +331,7 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% endif %}
 
 <h2 id="metrics">Key figures</h2>
+<p class="plain"><strong>In plain words:</strong> the company's own numbers over the last years: how much it earns, how solid the balance sheet is, how it grows and what it does with the cash.</p>
 <p class="muted">Computed from the reported statements. Hover over a figure for the formula, inputs and filing. &ldquo;n/a&rdquo; means it could not be computed; the tooltip says why.</p>
 {% if financials %}{{ table(financials) }}{% endif %}
 {% for t in metric_tables %}{{ table(t) }}{% endfor %}

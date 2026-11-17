@@ -15,8 +15,8 @@ Ships as:
 2. **Every number has provenance.** Each value carries its source: provider, endpoint/filing, accession number or form type, fiscal period, XBRL concept. A user must be able to verify any figure.
 3. **Works without paid API keys.** SEC EDGAR is the default data source (free, no key). Alpha Vantage, FMP, OpenAI/Anthropic are optional extras that only enrich the report.
 4. **Missing data is explicit, not silent.** If a metric cannot be computed, return `None` with a reason ("concept not reported", "needs 2 fiscal years") and show it as "n/a" in the report. Never fill gaps with guesses or zeros.
-5. **Statistics before storytelling.** Scores show their inputs, thresholds and known limitations (e.g. Altman Z is not meaningful for banks).
-6. **Not financial advice.** The report and README say so clearly. The tool flags risks, it does not issue buy/sell calls.
+5. **Statistics before storytelling.** Scores show their inputs, thresholds and known limitations (e.g. Altman Z is not meaningful for banks). A single statistical screen is never a verdict: every score has a known false-alarm rate (Beneish on a hyper-growth year, for example), so a red light needs agreement or a hard fact such as a filing event.
+6. **Not financial advice.** The report and README say so clearly. The tool flags risks and puts valuation in context (own history, peers, model ranges with every assumption visible). It never issues buy or sell calls: no "buy", no "undervalued, buy now", no price target of its own. Model outputs are labelled as model results, third-party opinions (analysts, news sentiment) as third-party data.
 
 ## Tech stack
 

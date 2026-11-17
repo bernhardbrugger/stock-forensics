@@ -56,19 +56,36 @@ run, because nothing meaningful can be said without them.
 
 All thresholds are constants in `src/stock_forensics/report/traffic.py`.
 
-| Area | Green | Yellow | Red | Gray |
+The four scores are **screens, not verdicts**. Each has a known false-alarm rate: Beneish was
+calibrated on US manufacturers of the 1980s and often fires on fast-growing or cyclical companies
+(a chip maker whose revenue jumps 256 % after a slump, for example), Altman and Piotroski are
+blunt for some business models. So one red screen alone is only "worth a look", and red needs
+agreement.
+
+| Check | Looks fine | Worth a look | Red screen | Gray |
 | --- | --- | --- | --- | --- |
 | Beneish M-Score | unlikely manipulator | | likely manipulator | not applicable or not computable |
 | Altman Z | safe | grey zone | distress | not applicable or not computable |
 | Piotroski F | neutral or strong | | weak | not applicable or not computable |
 | Accruals ratio | normal | elevated | high | not applicable or not computable |
-| Red flags | no flag, only low flags, or older medium flags | medium flag in the last 3 years, or older high flag | high flag in the last 3 years | section failed |
 
-* The **scores area** shows the worst light of the four scores. If no score applies (banks,
-  insurers, REITs), it is gray with the reason, not green.
-* The **red-flags area** uses a three-year recency window, measured from the filing date and
-  counted inclusive (a flag filed exactly three years ago is still recent). Low flags are shown
-  but never change the light.
+* The **scores area** is **red only if two or more screens are red**. One red screen makes the
+  area yellow ("worth a look"), and the reason says which other screens disagree. Yellow screens
+  (grey zone, elevated) make it yellow. If no score applies (banks, insurers, REITs), it is gray
+  with the reason, not green.
+* **Growth swings:** if revenue moved by 25 % or more in one of the last three fiscal years
+  (`GROWTH_SWING`), a Beneish or accruals result that is not green carries the hint that both are
+  error-prone for fast-growing, shrinking and cyclical companies. The biggest Beneish driver is
+  named in plain words ("mostly strong sales growth").
+* The **red-flags area** is about events in filings, not statistics, so one serious event is
+  enough:
+
+  | Red flags | Green | Yellow | Red | Gray |
+  | --- | --- | --- | --- | --- |
+  | Filings | no flag, only low flags, or older medium flags | medium flag in the last 3 years, or older high flag | high flag in the last 3 years | section failed |
+
+  The three-year window is measured from the filing date and counted inclusive (a flag filed
+  exactly three years ago is still recent). Low flags are shown but never change the light.
 * **Insider activity** is information only (blue). Most sales are planned diversification, often
   under Rule 10b5-1, so selling is not treated as a warning. Cluster buys are listed as context.
 * **Metrics** have no light. A cut-off such as "current ratio below 1" would be an invention; the
@@ -77,8 +94,17 @@ All thresholds are constants in `src/stock_forensics/report/traffic.py`.
   company whose scores do not apply gets the light of its red flags, and the headline says
   that the scores do not apply.
 
-Every light is a colored dot plus a text label ("Clear", "Caution", "Warning", "Not available",
-"Information"), so colour is never the only signal.
+Every light is a colored dot plus a text label ("Looks fine", "Worth a look", "Alarm", "Not
+available", "FYI"), so colour is never the only signal.
+
+## The short version
+
+Above the details the report has an **In short** list of three to five plain sentences, plus a
+"What to look at" list with the reasons behind every yellow or red light. Each section starts with
+a line "In plain words". All of it is assembled from the findings by fixed rules in
+`report/summary.py`; no language model writes it, and every number in it comes from the computed
+results. The score cards show both what the model says and what counts: a lone red screen shows
+as "worth a look" with a note that the model itself reads it as red.
 
 ## What the HTML contains
 
@@ -120,7 +146,9 @@ Live checks on real filings, with the expected outcome:
 
 | Ticker | Why it was chosen | Result |
 | --- | --- | --- |
-| AAPL | large, clean reference | Caution: Altman Z' in the grey zone, other scores clear, no flags; 47 sales, 44 under 10b5-1 plans |
-| MSFT | second clean reference | Clear, all four scores clear |
+| AAPL | large, clean reference | Worth a look (without prices): Altman Z' in the grey zone, other screens fine, no flags; 48 sales, 45 under 10b5-1 plans |
+| MSFT | second clean reference | Looks fine, all four screens fine |
 | JPM | bank | scores gray ("not meaningful for a bank"), overall from red flags only, headline says so |
-| SMCI | known accounting problems | Warning: auditor resignation (8-K, 2024-10-24), late 10-K (NT 10-K, 2024-08-30), accruals ratio 41% |
+| SMCI | known accounting problems | Alarm: auditor resignation (8-K, 2024-10-24) and a late 10-K (NT 10-K, 2024-08-30); accruals ratio 41%, two screens not computable |
+| MU | the false alarm that led to the rework | Worth a look instead of alarm: Beneish M-Score 0.48 is red, but mostly from strong sales growth (SGI 3.56, revenue +256 % in FY2026 after -49 % in FY2023) while Altman, Piotroski and accruals are fine and profits are cash-backed; the report says so |
+| NVDA | second growth case | Worth a look: lone red Beneish (revenue +126 % in FY2024) and an elevated accruals ratio; no filing flags |

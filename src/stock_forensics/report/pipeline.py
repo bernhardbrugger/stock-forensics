@@ -32,7 +32,7 @@ from stock_forensics.providers.sec_edgar import SecEdgarClient, SecEdgarError
 from stock_forensics.providers.sec_models import Filing, Submissions
 from stock_forensics.report.models import ForensicReport
 from stock_forensics.report.sources import collect_sources
-from stock_forensics.report.traffic import summarize
+from stock_forensics.report.summary import summarize
 from stock_forensics.scores import Scores, compute_scores
 
 Progress = Callable[[int, int, str], None]  # step number, number of steps, what happens now

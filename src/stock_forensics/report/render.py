@@ -20,7 +20,7 @@ from stock_forensics.insiders.models import Category
 from stock_forensics.metrics.engine import Group
 from stock_forensics.models import Unit, Value
 from stock_forensics.report.models import ForensicReport, Light
-from stock_forensics.report.traffic import score_light
+from stock_forensics.report.traffic import RED_SCREENS_FOR_RED, score_light
 from stock_forensics.scores import SCORE_NAMES
 
 Format = Literal["html", "md", "json"]
@@ -31,11 +31,11 @@ MAX_TRANSACTIONS = 30
 MAX_PEOPLE = 10
 
 LIGHT_LABELS = {
-    Light.GREEN: "Clear",
-    Light.YELLOW: "Caution",
-    Light.RED: "Warning",
+    Light.GREEN: "Looks fine",
+    Light.YELLOW: "Worth a look",
+    Light.RED: "Alarm",
     Light.GRAY: "Not available",
-    Light.INFO: "Information",
+    Light.INFO: "FYI",
 }
 GROUP_TITLES = {
     Group.PROFITABILITY: "Profitability",
@@ -264,7 +264,8 @@ def financials_table(report: ForensicReport) -> Table | None:
 class ScoreView:
     name: str
     label: str
-    light: Light
+    light: Light  # what the report counts: a lone red screen is only "worth a look"
+    own_reading: Light  # what the model itself says
     total: str
     zone: str
     interpretation: str
@@ -285,8 +286,11 @@ def score_views(report: ForensicReport) -> tuple[ScoreView, ...]:
     if report.scores is None:
         return ()
     views = []
+    reds = sum(1 for n in SCORE_NAMES if score_light(report.scores.latest(n)) is Light.RED)
     for name in SCORE_NAMES:
         result = report.scores.latest(name)
+        own = score_light(result)
+        counted = Light.YELLOW if own is Light.RED and reds < RED_SCREENS_FOR_RED else own
         total = format_value(result.total, name)
         if name == "piotroski_f" and result.total.value is not None:
             total = f"{int(result.total.value)} of 9"
@@ -307,7 +311,8 @@ def score_views(report: ForensicReport) -> tuple[ScoreView, ...]:
             ScoreView(
                 name=name,
                 label=result.label,
-                light=score_light(result),
+                light=counted,
+                own_reading=own,
                 total=total,
                 zone=(result.zone or "n/a").replace("_", " "),
                 interpretation=result.interpretation,

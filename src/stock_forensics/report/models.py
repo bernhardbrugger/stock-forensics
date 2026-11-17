@@ -45,6 +45,7 @@ class Reason(_Frozen):
     light: Light
     text: str
     section: str  # anchor of the section of the report with the details
+    hint: str | None = None  # why this may be a false alarm, or what to keep in mind
 
 
 class AreaLight(_Frozen):
@@ -59,6 +60,7 @@ class Summary(_Frozen):
     headline: str
     areas: tuple[AreaLight, ...]
     reasons: tuple[Reason, ...]
+    takeaways: tuple[str, ...] = ()  # the short version in plain sentences, built from the findings
 
 
 class SourceEntry(_Frozen):
