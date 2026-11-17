@@ -28,18 +28,24 @@ move from the Z' to the Z variant, which is a statement about the score, not abo
 | Provider | Key | History | Notes |
 | --- | --- | --- | --- |
 | `yfinance` (extra `prices`) | none | years | Unofficial client of Yahoo Finance. Its availability and terms are outside this project's control. Close adjusted for splits, not for dividends. Index: `^GSPC`. |
-| Alpha Vantage | `ALPHAVANTAGE_API_KEY` | free key: last 100 trading days | `TIME_SERIES_DAILY`. Per the Alpha Vantage documentation only `outputsize=compact` (100 data points) is free; `full` and the adjusted endpoint are premium. The free quota is small (25 requests per day according to the provider's published limits at the time of writing), so responses are cached for 12 hours. Index proxy: `SPY`. |
+| Alpha Vantage | `ALPHAVANTAGE_API_KEY` | `full` (20+ years) if the key allows it, else the latest 100 trading days | `TIME_SERIES_DAILY`. Close as traded (not split-adjusted). One request per second is kept as a pause; every response is cached for 12 hours, which also saves the daily quota of a free key (25 requests per day). Index proxy: `SPY`. |
 
-With a free Alpha Vantage key, everything that needs more than about five months of prices is a
-gap with the reason ("needs prices from ..., the history starts ..."): 12-month momentum,
-volatility, drawdowns, beta, and the market value of older fiscal years. The latest market value,
-P/E, EV/EBITDA, FCF yield, 3 and 6 month momentum still work.
+`ALPHAVANTAGE_OUTPUTSIZE=auto|full|compact` (default `auto`) decides how much history is asked
+for. `auto` tries `full` and falls back to `compact` if the service answers that `full` is a
+premium feature (and then stops trying for the rest of the run). A rate-limit answer is something
+else: the provider waits and tries the same size once more, and never concludes from it that the
+key is limited.
 
-The Alpha Vantage close is documented as the raw, as-traded price, so it is treated as *not*
-split-adjusted. The provider has not been tried live by the project (no key was available); it is
-covered by tests with recorded-style responses only. The API key is only sent as the query
-parameter the service requires and never appears in the cache key, in an error message or in the
-report.
+With only 100 days of prices (a free key), everything that needs more is a gap with the reason
+("needs prices from ..., the history starts ..."): the 200-day average and the cross, weekly RSI
+and MACD, the chart, 12-month momentum and relative strength, volatility, drawdowns, beta, and the
+market value of older fiscal years. The latest market value, P/E, EV/EBITDA, FCF yield, the 50-day
+average and 3 and 6 month momentum still work.
+
+The close of `TIME_SERIES_DAILY` is the raw, as-traded price, so the series is treated as *not*
+split-adjusted. This was checked live: Apple closed at USD 499.23 on 2020-08-28 and USD 129.04 on
+2020-08-31, the day of the 4-for-1 split. The API key is only sent as the query parameter the
+service requires and never appears in the cache key, in an error message or in the report.
 
 The interface is `stock_forensics.providers.prices.PriceProvider`: one method,
 `daily_prices(ticker, start, end) -> PriceSeries`, plus the `benchmark` ticker. A new provider
@@ -92,11 +98,44 @@ windows are measured back from the latest close; a window the history does not c
 If the latest close is more than 10 days older than the analysis date, every market number is a
 gap ("the latest close is from ..., N days before ...").
 
+## Trend indicators
+
+For long-term investors, not for day trading: weekly and monthly horizons, computed from the daily
+closes already loaded (no extra requests). They **look back**: they describe what the price did
+and do not predict what it will do. Every reading is worded that way ("the long-term trend points
+up", never a buy or sell word).
+
+| Indicator | Formula | Plain-words reading |
+| --- | --- | --- |
+| Price vs. 50-day / 200-day average | close / simple average of the last 50 (200) closes - 1 | within 2 %: "right at its average"; otherwise "N % above (below) ...: the trend points up (down)" |
+| 50-day vs. 200-day average | average of 50 closes / average of 200 closes - 1 | the shorter trend is stronger or weaker than the longer one |
+| Last cross | days since the 50-day average last moved above (golden) or below (death) the 200-day average | names the date and says it looks back; no cross since both averages exist is a gap that says where they stand |
+| RSI (14 weeks) | Wilder RSI on weekly closes (last close of each calendar week, the newest possibly unfinished week included) | 70 or more "stretched upward", 30 or less "stretched downward", else "middle range" (common rules of thumb) |
+| MACD (weekly, 12/26/9) | EMA(12) - EMA(26) of weekly closes, signal EMA(9), histogram = MACD - signal | momentum up / improving / fading / down, from the histogram and the sign of the MACD |
+| Relative strength vs. S&P 500, 6 and 12 months | (1 + stock return) / (1 + index return) - 1 | "N % better (worse) than the S&P 500", within 1 % "about in line" |
+
+Details: the EMAs start with the first close (`alpha = 2 / (n + 1)`), RSI starts with the simple
+average of the first 14 changes, and all loaded history is used as warm-up. At least 52 weekly
+closes are required, otherwise RSI and MACD are gaps ("needs 52 weekly closes (about a year) to be
+warmed up; have 40"). The 200-day average needs 200 daily closes. A series that is not
+split-adjusted refuses to run across a jump that looks like a split.
+
+The report shows the indicators in a **Trend** table with a plain-words column, and a **price
+chart** as inline SVG (weekly closes of the last three years, 50 and 200-day averages, and the
+stretches in which the price was at least 10 % below its highest weekly close of the period
+shaded). The chart has a title and a text description for screen readers and needs no scripts or
+files. Its points (weekly close and both averages) are part of the report data with their source,
+so the picture can be checked. The Markdown report has the table, not the picture.
+
 ## Verification
 
 * Every technical is tested against a hand-calculated reference (the working is in the test):
   momentum on a linear series, volatility of alternating moves, drawdown 120 to 60 = -50 %,
   beta of exactly 2 for a series that moves twice as much as the index.
+* The trend indicators are tested on series small enough to follow on paper: weekly RSI with
+  Wilder smoothing on closes 10, 11, 10, 12, 11, 13 with period 3 is exactly 75 (RS = 3), the MACD
+  of 10, 12, 11, 13 with periods 2/3/2 has line 10/27, signal 8/27 and histogram 2/27, and a stock
+  that gains 20 % against an index that gains 10 % has a relative strength of 9.09 %.
 * Market values are checked against the recorded Apple statements (price x shares), including a
   4-for-1 split after the balance sheet date.
 * All price tests are offline: yfinance is stubbed with a real `pandas` frame, Alpha Vantage runs
@@ -118,5 +157,19 @@ multiplied by the June 2024 split. Multiplying it again made the market value te
 high (USD 15 trillion). The rule is now "only splits after the filing the share count comes
 from", which is why `Source` has a `filed` date. The tests contain this case.
 
-Not verified: a second, independent price source could not be reached from the analysis
-environment, so the prices themselves are Yahoo's. Alpha Vantage was not tried live (no key).
+Checks of the trend indicators and the price sources (November 2026):
+
+* **Indicators against an independent implementation.** For AAPL, MSFT, NVDA and MU the values were
+  recomputed with pandas (`rolling`, `ewm`, `resample`) on the same yfinance closes. Moving
+  average distances and relative strength agree to machine precision (about 1e-16), the weekly
+  MACD to 4e-5 (our rounding to four places), the weekly RSI to 4e-3 (rounding to two places and
+  a slightly different start of the smoothing).
+* **A second price source.** Alpha Vantage and Yahoo give the same closes for AAPL on all 97
+  common days (July to November 2026), none differs by more than one cent.
+* **Alpha Vantage live.** `full` history works with the key that was used (6,802 trading days
+  back to 1999-11-01), `compact` returns 100 days, the as-traded close was confirmed at Apple's
+  2020 split, and a burst of requests triggers the one-per-second limit, which the provider now
+  respects.
+* The chart's geometry was checked in a browser (size, legend outside the plot area, shaded
+  stretches). A picture of it could not be taken in the analysis environment, so the visual
+  impression has not been checked by a person yet.

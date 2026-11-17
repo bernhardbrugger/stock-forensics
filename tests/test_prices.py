@@ -193,6 +193,7 @@ class AvServer:
 
 
 def av(server: AvServer, tmp_path: Path, **kwargs: Any) -> AlphaVantageProvider:
+    kwargs.setdefault("sleep", lambda _: None)  # tests never wait for the 1 request per second
     return AlphaVantageProvider(
         SECRET, transport=httpx.MockTransport(server), cache_dir=tmp_path, **kwargs
     )
@@ -210,8 +211,171 @@ def test_alpha_vantage_parses_and_filters_by_date(tmp_path: Path) -> None:
     assert result.source.provider == "alphavantage"
     params = dict(server.requests[0].url.params)
     assert params["function"] == "TIME_SERIES_DAILY"
-    assert params["symbol"] == "AAPL" and params["outputsize"] == "compact"
+    assert params["symbol"] == "AAPL" and params["outputsize"] == "full"  # auto tries full first
     assert params["apikey"] == SECRET
+
+
+class Plan:
+    """Answers "full" with the whole history, or with a refusal like a limited key gets."""
+
+    def __init__(self, *, full_allowed: bool) -> None:
+        self.full_allowed = full_allowed
+        self.sizes: list[str] = []
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        size = request.url.params["outputsize"]
+        self.sizes.append(size)
+        if size == "full" and not self.full_allowed:
+            return httpx.Response(200, json={"Information": "full output is a premium feature"})
+        return httpx.Response(200, json=av_body(DAYS))
+
+
+def test_alpha_vantage_auto_uses_the_full_history_when_the_key_allows_it(tmp_path: Path) -> None:
+    plan = Plan(full_allowed=True)
+    provider = AlphaVantageProvider(
+        SECRET, transport=httpx.MockTransport(plan), cache_dir=tmp_path, sleep=lambda _: None
+    )
+    result = provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert plan.sizes == ["full"]
+    assert "outputsize=full" in (result.source.endpoint or "")
+
+
+def test_alpha_vantage_falls_back_to_compact_and_remembers_it(tmp_path: Path) -> None:
+    plan = Plan(full_allowed=False)
+    provider = AlphaVantageProvider(
+        SECRET, transport=httpx.MockTransport(plan), cache_dir=tmp_path, sleep=lambda _: None
+    )
+    first = provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert plan.sizes == ["full", "compact"]
+    assert "outputsize=compact" in (first.source.endpoint or "")
+    provider.daily_prices("SPY", date(2026, 10, 1), date(2026, 11, 12))
+    assert plan.sizes == ["full", "compact", "compact"]  # no second try of full for this key
+
+
+class Scripted:
+    """Answers each request with the next canned JSON body and records the sizes asked for."""
+
+    def __init__(self, *bodies: Any) -> None:
+        self.bodies = list(bodies)
+        self.sizes: list[str] = []
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        self.sizes.append(request.url.params["outputsize"])
+        return httpx.Response(200, json=self.bodies.pop(0))
+
+
+RATE = {"Information": "Please consider spreading out your free API requests more sparingly"}
+
+
+def test_a_rate_limit_waits_and_retries_instead_of_downgrading(tmp_path: Path) -> None:
+    script = Scripted(RATE, av_body(DAYS), av_body(DAYS))
+    pauses: list[float] = []
+    provider = AlphaVantageProvider(
+        SECRET,
+        transport=httpx.MockTransport(script),
+        cache_dir=tmp_path,
+        clock=lambda: 0.0,
+        sleep=pauses.append,
+        min_interval=1.1,
+    )
+    result = provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert script.sizes == ["full", "full"]  # the same size again, not "compact"
+    assert 2.2 in pauses  # waited twice the minimum interval before the retry
+    assert "outputsize=full" in (result.source.endpoint or "")
+    provider.daily_prices("SPY", date(2026, 10, 1), date(2026, 11, 12))
+    assert script.sizes == ["full", "full", "full"]  # full is still tried for the next symbol
+
+
+def test_a_rate_limit_that_stays_is_reported_not_hidden(tmp_path: Path) -> None:
+    script = Scripted(RATE, RATE, av_body(DAYS))
+    provider = AlphaVantageProvider(
+        SECRET,
+        transport=httpx.MockTransport(script),
+        cache_dir=tmp_path,
+        sleep=lambda _: None,
+    )
+    # two rate-limit answers for "full", then "compact" works for this call only
+    result = provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert script.sizes == ["full", "full", "compact"]
+    assert "outputsize=compact" in (result.source.endpoint or "")
+    assert provider._full_refused is False  # a transient problem is not a verdict on the key
+
+
+def test_an_unknown_message_falls_back_once_without_giving_up_on_full(tmp_path: Path) -> None:
+    script = Scripted({"Information": "Something new happened"}, av_body(DAYS), av_body(DAYS))
+    provider = AlphaVantageProvider(
+        SECRET,
+        transport=httpx.MockTransport(script),
+        cache_dir=tmp_path,
+        sleep=lambda _: None,
+    )
+    provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert script.sizes == ["full", "compact"]
+    provider.daily_prices("SPY", date(2026, 10, 1), date(2026, 11, 12))
+    assert script.sizes == ["full", "compact", "full"]
+
+
+def test_alpha_vantage_fixed_outputsize_never_falls_back(tmp_path: Path) -> None:
+    plan = Plan(full_allowed=False)
+    provider = AlphaVantageProvider(
+        SECRET,
+        outputsize="full",
+        transport=httpx.MockTransport(plan),
+        cache_dir=tmp_path,
+        sleep=lambda _: None,
+    )
+    with pytest.raises(PriceError, match="premium"):
+        provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert plan.sizes == ["full"]
+    compact = AlphaVantageProvider(
+        SECRET,
+        outputsize="compact",
+        transport=httpx.MockTransport(plan),
+        cache_dir=tmp_path / "c",
+        sleep=lambda _: None,
+    )
+    compact.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert plan.sizes == ["full", "compact"]
+
+
+def test_alpha_vantage_outputsize_from_the_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("ALPHAVANTAGE_OUTPUTSIZE", "compact")
+    plan = Plan(full_allowed=True)
+    provider = AlphaVantageProvider(
+        SECRET, transport=httpx.MockTransport(plan), cache_dir=tmp_path, sleep=lambda _: None
+    )
+    provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert plan.sizes == ["compact"]
+    with pytest.raises(ValueError, match="outputsize must be one of"):
+        AlphaVantageProvider(SECRET, outputsize="everything")
+
+
+def test_alpha_vantage_keeps_a_pause_between_requests(tmp_path: Path) -> None:
+    # The service allows one request per second: the second network request has to wait.
+    now = [100.0]
+    pauses: list[float] = []
+
+    def sleep(seconds: float) -> None:
+        pauses.append(seconds)
+        now[0] += seconds
+
+    provider = AlphaVantageProvider(
+        SECRET,
+        transport=httpx.MockTransport(AvServer()),
+        cache_dir=tmp_path,
+        clock=lambda: now[0],
+        sleep=sleep,
+        min_interval=1.1,
+    )
+    provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))
+    assert pauses == []  # the first request goes out at once
+    now[0] += 0.3  # 0.3 s later the next one is wanted
+    provider.daily_prices("SPY", date(2026, 10, 1), date(2026, 11, 12))
+    assert len(pauses) == 1 and abs(pauses[0] - 0.8) < 1e-9
+    provider.daily_prices("AAPL", date(2026, 10, 1), date(2026, 11, 12))  # cached: no request
+    assert len(pauses) == 1
 
 
 def test_alpha_vantage_key_never_reaches_cache_or_provenance(tmp_path: Path) -> None:

@@ -89,7 +89,7 @@ def first_jump(bars: tuple[PriceBar, ...], since: date) -> tuple[date, Decimal] 
     return None
 
 
-class _Context:
+class Context:
     def __init__(self, series: PriceSeries, benchmark: PriceSeries | None, last: PriceBar) -> None:
         self.series = series
         self.benchmark = benchmark
@@ -103,6 +103,16 @@ class _Context:
         self, amount: Decimal, note: str, inputs: tuple[Value, ...], start: date | None
     ) -> Value:
         return number(self.series, amount, Unit.RATIO, self.last.day, note, inputs, start)
+
+    def number_in(
+        self,
+        amount: Decimal,
+        unit: Unit,
+        note: str,
+        inputs: tuple[Value, ...],
+        start: date | None,
+    ) -> Value:
+        return number(self.series, amount, unit, self.last.day, note, inputs, start)
 
     def covered(self, start: date, label: str) -> str | None:
         """A reason if the history does not cover a window beginning on ``start``."""
@@ -125,7 +135,7 @@ class _Context:
 
 
 def _windowed(
-    ctx: _Context,
+    ctx: Context,
     start: date,
     label: str,
     compute: Callable[[], tuple[Decimal, str, tuple[Value, ...]] | str],
@@ -141,11 +151,11 @@ def _windowed(
     return ctx.number(amount, note, inputs, start)
 
 
-def _close_at(ctx: _Context, day: date) -> PriceBar | None:
+def _close_at(ctx: Context, day: date) -> PriceBar | None:
     return ctx.series.on_or_before(day)
 
 
-def _momentum(ctx: _Context, months_from: int, months_to: int = 0) -> Value:
+def _momentum(ctx: Context, months_from: int, months_to: int = 0) -> Value:
     """``close(now - months_to) / close(now - months_from) - 1``."""
     start = months_before(ctx.last.day, months_from)
 
@@ -164,7 +174,7 @@ def _momentum(ctx: _Context, months_from: int, months_to: int = 0) -> Value:
     return _windowed(ctx, start, f"{months_from} months", compute)
 
 
-def _volatility(ctx: _Context) -> Value:
+def _volatility(ctx: Context) -> Value:
     bars = ctx.series.bars
     if len(bars) < TRADING_DAYS + 1:
         return ctx.gap(
@@ -183,7 +193,7 @@ def _volatility(ctx: _Context) -> Value:
     return ctx.number(_decimal(annual), note, inputs, start)
 
 
-def _drawdown(ctx: _Context, years: int) -> Value:
+def _drawdown(ctx: Context, years: int) -> Value:
     start = years_before(ctx.last.day, years)
 
     def compute() -> tuple[Decimal, str, tuple[Value, ...]] | str:
@@ -209,7 +219,7 @@ def _drawdown(ctx: _Context, years: int) -> Value:
     return _windowed(ctx, start, f"{years} years", compute)
 
 
-def _range(ctx: _Context) -> tuple[Value, Value]:
+def _range(ctx: Context) -> tuple[Value, Value]:
     start = ctx.last.day - timedelta(days=365)
 
     def compute(kind: str) -> Callable[[], tuple[Decimal, str, tuple[Value, ...]] | str]:
@@ -241,7 +251,7 @@ def _weekly(bars: tuple[PriceBar, ...]) -> dict[date, PriceBar]:
     return weeks
 
 
-def _beta(ctx: _Context) -> Value:
+def _beta(ctx: Context) -> Value:
     benchmark = ctx.benchmark
     if benchmark is None:
         return ctx.gap("the index series could not be loaded")
@@ -283,7 +293,7 @@ def compute_technicals(
     """All technicals as of the latest close in ``series``."""
     last = series.last_bar
     assert last is not None, "a price series always has at least one bar"
-    ctx = _Context(series, benchmark, last)
+    ctx = Context(series, benchmark, last)
     age = (as_of - last.day).days
     values: dict[str, Value]
     if age > MAX_STALE_DAYS:

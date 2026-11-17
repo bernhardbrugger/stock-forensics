@@ -158,6 +158,14 @@ Not available: {{ r.errors.get('market') or r.market_note or 'no price data' }}.
 {% else %}
 Prices from {{ market.data.provider }}, latest close {{ market.data.price_date | iso }} ({{ market.price }}). Information only, no traffic light.
 
+**Trend** (weekly and long-term; these indicators look back and do not predict)
+
+| Indicator | Value | In plain words |
+| --- | --- | --- |
+{% for row in market.trend %}
+| {{ row.label | md }} | {{ row.text | md }} | {{ (row.reading or row.basis) | md }} |
+{% endfor %}
+
 {% for title, rows in [('Valuation', market.valuation), ('Technicals', market.technicals)] %}
 **{{ title }}**
 

@@ -38,6 +38,16 @@ NAMES = {
         "dist_52w_high",
         "dist_52w_low",
     ],
+    "trend": [
+        "dist_sma_50",
+        "dist_sma_200",
+        "sma_50_vs_200",
+        "last_cross",
+        "rsi_14w",
+        "macd_w",
+        "rel_strength_6m",
+        "rel_strength_12m",
+    ],
 }
 
 
@@ -50,8 +60,12 @@ def test_market_data_is_in_the_report(aapl_report_market: ForensicReport) -> Non
     for group, names in NAMES.items():
         assert [m.name for m in market.of_group(group)] == names
     for metric in market.metrics:
+        assert metric.formula and metric.label
+        if metric.name == "last_cross":  # the fake price may never have crossed: then a reason
+            assert metric.value.value is not None or "no cross since" in (metric.value.note or "")
+            continue
         assert metric.value.value is not None, metric.name  # the fake history covers everything
-        assert metric.value.inputs and metric.formula and metric.label
+        assert metric.value.inputs, metric.name
 
 
 def test_market_value_makes_manufacturers_use_the_original_altman_z(
@@ -278,3 +292,61 @@ def test_analyze_market_requires_prices_of_the_company(aapl_report: ForensicRepo
             metrics=aapl_report.metrics,
             as_of=AS_OF,
         )
+
+
+def test_the_html_has_the_trend_table_and_the_chart(aapl_report_market: ForensicReport) -> None:
+    html = render_html(aapl_report_market)
+    assert html.count('<svg class="chart"') == 1 and 'id="chart-title"' in html
+    assert "Trend (weekly and long-term, no day trading)" in html
+    for label in ("Price vs. 200-day average", "RSI (14 weeks)", "MACD (weekly, 12/26/9)"):
+        assert label in html, label
+    market = aapl_report_market.market
+    assert market is not None
+    reading = market.metrics_by_name["dist_sma_200"].reading
+    assert reading and reading in html
+    assert "These indicators look back" in html
+    assert "<script" not in html and 'src="' not in html
+
+
+def test_markdown_has_the_trend_table(aapl_report_market: ForensicReport) -> None:
+    md = render_markdown(aapl_report_market)
+    assert "**Trend** (weekly and long-term; these indicators look back and do not predict)" in md
+    assert "| RSI (14 weeks) |" in md and "| In plain words |" in md
+
+
+def test_the_short_version_mentions_the_trend_only_with_prices(
+    aapl_report: ForensicReport, aapl_report_market: ForensicReport
+) -> None:
+    with_prices = [t for t in aapl_report_market.summary.takeaways if t.startswith("Trend")]
+    assert len(with_prices) == 1
+    assert with_prices[0].startswith("Trend (looks back, no forecast): the price is ")
+    assert "200-day average" in with_prices[0] and "weekly RSI is " in with_prices[0]
+    assert "than the S&P 500 over 12 months" in with_prices[0]
+    assert not [t for t in aapl_report.summary.takeaways if t.startswith("Trend")]
+
+
+def test_a_free_key_history_gives_trend_gaps_with_reasons(tmp_path: Path) -> None:
+    with make_client(tmp_path, FakeSec()) as client:
+        report = analyze("AAPL", client=client, as_of=AS_OF, prices=FakePrices(limit_days=100))
+    market = report.market
+    assert market is not None
+    assert market.get("dist_sma_50").value is not None  # 50 closes are enough
+    for name in ("dist_sma_200", "sma_50_vs_200", "last_cross", "rsi_14w", "macd_w"):
+        assert market.get(name).value is None, name
+        assert market.get(name).note, name
+    assert market.chart is None
+    assert any("no price chart" in n for n in market.notes)
+    html = render_html(report)
+    assert "<svg" not in html and "needs 200 daily closes" in html
+    # the trend sentence still appears, from the numbers that exist
+    assert any(t.startswith("Trend (looks back") for t in report.summary.takeaways)
+
+
+def test_the_chart_belongs_to_the_report_data(aapl_report_market: ForensicReport) -> None:
+    market = aapl_report_market.market
+    assert market is not None and market.chart is not None
+    assert market.chart.source.provider == "fakeprices" and len(market.chart.points) > 100
+    assert (
+        market.chart.points[-1].day == market.price_date
+        or (market.price_date - market.chart.points[-1].day).days <= 7
+    )

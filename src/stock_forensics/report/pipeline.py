@@ -144,6 +144,7 @@ def analyze(
         insiders=insiders,
         as_of=as_of,
         errors=errors,
+        market=market,
     )
     return ForensicReport(
         ticker=company.ticker,
