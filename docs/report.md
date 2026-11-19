@@ -117,8 +117,9 @@ as "worth a look" with a note that the model itself reads it as red.
   table of what each check examined, so "no flag" can be told apart from "not checked".
 * Insider activity: totals, per person, open-market transactions (newest 30) with links to the
   Form 4s; the rest is in the JSON export.
-* Market data (only with a price provider, see [market.md](market.md)): valuation and technicals,
-  information only, with no traffic light. Without a provider the section says why it is missing.
+* Market data (only with a price provider, see [market.md](market.md)): valuation, technicals and
+  trend indicators with a plain-words column and a price chart (inline SVG), information only, with
+  no traffic light. Without a provider the section says why it is missing.
 * Key figures: ten key financials and the 25 metrics for up to five fiscal years. Hover over a
   figure for its formula, inputs, filing and XBRL concept; "n/a" explains itself the same way.
 * Sources: every filing the statement figures and red flags come from, with links.

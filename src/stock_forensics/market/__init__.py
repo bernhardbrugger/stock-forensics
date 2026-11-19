@@ -12,6 +12,7 @@ from datetime import date, timedelta
 
 from stock_forensics.flags import years_before
 from stock_forensics.market.common import price_value
+from stock_forensics.market.indicators import build_chart, compute_trend
 from stock_forensics.market.models import MarketData, MarketMetric
 from stock_forensics.market.technicals import compute_technicals
 from stock_forensics.market.valuation import compute_valuation, market_caps
@@ -71,7 +72,11 @@ def analyze_market(
     metrics_out: tuple[MarketMetric, ...] = (
         *compute_valuation(statements, metrics, series, as_of_days_old=age),
         *compute_technicals(series, benchmark, as_of=as_of),
+        *compute_trend(series, benchmark, as_of=as_of),
     )
+    chart = build_chart(series)
+    if chart is None:
+        notes.append("no price chart: fewer than 26 weekly closes in the last 3 years")
     return MarketData(
         provider=provider.name,
         ticker=series.ticker,
@@ -80,6 +85,7 @@ def analyze_market(
         price=price_value(series, last),
         market_cap=caps,
         metrics=metrics_out,
+        chart=chart,
         notes=tuple(notes),
     )
 

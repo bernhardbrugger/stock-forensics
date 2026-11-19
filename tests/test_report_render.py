@@ -297,3 +297,14 @@ def test_every_section_has_a_plain_words_line(aapl_report_market: ForensicReport
     assert html.count("In plain words:") == 5
     md = render_markdown(aapl_report_market)
     assert md.count("In plain words:") >= 2
+
+
+def test_every_market_ratio_has_a_display_style() -> None:
+    from stock_forensics.market.indicators import SPECS as TREND
+    from stock_forensics.market.technicals import SPECS as TECHNICALS
+    from stock_forensics.market.valuation import SPECS as VALUATION
+
+    ratios = {name for name, _, _, unit in VALUATION if unit is Unit.RATIO}
+    ratios |= {name for name, _, _ in TECHNICALS}  # all technicals are ratios
+    ratios |= {name for name, _, _ in TREND if name not in {"last_cross", "rsi_14w", "macd_w"}}
+    assert ratios <= set(METRIC_STYLE), ratios - set(METRIC_STYLE)

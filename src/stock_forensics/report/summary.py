@@ -11,6 +11,7 @@ from datetime import date
 from stock_forensics.flags import years_before
 from stock_forensics.flags.models import RedFlags, Severity
 from stock_forensics.insiders.models import InsiderActivity
+from stock_forensics.market.models import MarketData
 from stock_forensics.metrics.engine import Metrics
 from stock_forensics.report.models import Light, Reason, Summary
 from stock_forensics.report.traffic import (
@@ -152,6 +153,38 @@ def _insiders_sentence(activity: InsiderActivity | None) -> str | None:
     return text
 
 
+def _trend_sentence(market: MarketData | None) -> str | None:
+    """One sentence on the trend, only from the numbers that exist (it looks back, no forecast)."""
+    if market is None:
+        return None
+    parts: list[str] = []
+    for name, days in (("dist_sma_200", 200), ("dist_sma_50", 50)):  # the longer one if it exists
+        distance = market.get(name).value
+        if distance is not None:
+            side = "above" if distance >= 0 else "below"
+            parts.append(
+                f"the price is {abs(float(distance)) * 100:.0f}% {side} its {days}-day average"
+            )
+            break
+    strength = market.get("rsi_14w").value
+    if strength is not None:
+        zone = (
+            "stretched upward"
+            if strength >= 70
+            else "stretched downward"
+            if strength <= 30
+            else "middle range"
+        )
+        parts.append(f"weekly RSI is {float(strength):.0f} ({zone})")
+    relative = market.get("rel_strength_12m").value
+    if relative is not None:
+        way = "better" if relative >= 0 else "worse"
+        parts.append(f"{abs(float(relative)) * 100:.0f}% {way} than the S&P 500 over 12 months")
+    if not parts:
+        return None
+    return "Trend (looks back, no forecast): " + "; ".join(parts) + "."
+
+
 def takeaways(
     *,
     scores: Scores | None,
@@ -160,11 +193,13 @@ def takeaways(
     insiders: InsiderActivity | None,
     as_of: date,
     errors: dict[str, str],
+    market: MarketData | None = None,
 ) -> tuple[str, ...]:
     sentences = [
         _scores_sentence(scores, metrics),
         _flags_sentence(red_flags, as_of),
         _insiders_sentence(insiders),
+        _trend_sentence(market),
     ]
     out = [s for s in sentences if s]
     if errors:
@@ -180,6 +215,7 @@ def summarize(
     insiders: InsiderActivity | None,
     as_of: date,
     errors: dict[str, str],
+    market: MarketData | None = None,
 ) -> Summary:
     scores_light, scores_reasons = scores_area(scores, metrics, errors.get("scores"))
     flags_light, flags_reasons = flags_area(red_flags, as_of, errors.get("red_flags"))
@@ -200,5 +236,6 @@ def summarize(
             insiders=insiders,
             as_of=as_of,
             errors=errors,
+            market=market,
         ),
     )

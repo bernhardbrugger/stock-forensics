@@ -72,6 +72,16 @@ ul.reasons li { margin: .25rem 0; }
 ul.short { margin: .4rem 0 0; padding-left: 1.2rem; font-size: 1.05rem; }
 ul.short li { margin: .35rem 0; }
 .hint { color: var(--muted); font-size: .88rem; margin: .2rem 0 0; }
+.chartbox { margin: .8rem 0; }
+svg.chart { width: 100%; height: auto; display: block; }
+svg.chart text { fill: var(--muted); font: 11px var(--sans); }
+svg.chart .axis { font-size: 10.5px; }
+svg.chart .grid { stroke: var(--rule); stroke-width: 1; }
+svg.chart path, svg.chart .legend line { fill: none; stroke-width: 1.6; stroke-linejoin: round; }
+svg.chart .px { stroke: var(--ink); }
+svg.chart .s50 { stroke: var(--info); }
+svg.chart .s200 { stroke: var(--yellow); }
+svg.chart .dd { fill: var(--red); fill-opacity: .14; stroke: none; }
 .plain { background: var(--card); border-left: 3px solid var(--rule); padding: .5rem .8rem; margin: .5rem 0 .8rem; }
 .disclaimer { font-weight: 600; }
 .card { background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
@@ -317,6 +327,18 @@ footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid var(--ink); 
 {% else %}
 {% set d = market.data %}
 <p class="muted">Prices from {{ d.provider }}, latest close {{ d.price_date | iso }} ({{ market.price }}). Information only: this report does not say whether a price is high or low, and none of these numbers has a traffic light.</p>
+{% if market.chart %}
+<div class="chartbox">{{ market.chart }}</div>
+{% endif %}
+<div class="scroll"><table>
+  <caption class="muted small" style="text-align:left;caption-side:top">Trend (weekly and long-term, no day trading)</caption>
+  <thead><tr><th>Indicator</th><th class="num">Value</th><th>In plain words</th></tr></thead>
+  <tbody>
+  {% for row in market.trend %}
+  <tr><td>{{ row.label }}</td><td class="num{{ ' missing' if row.missing else '' }}" title="{{ row.tooltip }}">{{ row.text }}</td><td class="small">{% if row.reading %}{{ row.reading }}{% else %}<span class="muted">{{ row.basis }}</span>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+<p class="small muted">These indicators look back: they describe what the price did, not what it will do. RSI above 70 or below 30 are common rules of thumb, not signals.</p>
 {% for title, rows in [('Valuation', market.valuation), ('Technicals', market.technicals)] %}
 <div class="scroll"><table>
   <caption class="muted small" style="text-align:left;caption-side:top">{{ title }}</caption>

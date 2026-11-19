@@ -19,6 +19,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from stock_forensics.insiders.models import Category
 from stock_forensics.metrics.engine import Group
 from stock_forensics.models import Unit, Value
+from stock_forensics.report.chart import price_chart_svg
 from stock_forensics.report.models import ForensicReport, Light
 from stock_forensics.report.traffic import RED_SCREENS_FOR_RED, score_light
 from stock_forensics.scores import SCORE_NAMES
@@ -86,6 +87,11 @@ METRIC_STYLE: dict[str, str] = {
     "dist_52w_high": "percent",
     "dist_52w_low": "percent",
     "beta_2y": "number",
+    "dist_sma_50": "percent",
+    "dist_sma_200": "percent",
+    "sma_50_vs_200": "percent",
+    "rel_strength_6m": "percent",
+    "rel_strength_12m": "percent",
 }
 KEY_FINANCIALS = (
     "revenue",
@@ -134,7 +140,8 @@ def format_value(value: Value | None, name: str | None = None) -> str:
         case Unit.USD:
             return format_usd(number)
         case Unit.USD_PER_SHARE:
-            return f"${float(number):,.2f}"
+            sign = "-" if number < 0 else ""
+            return f"{sign}${abs(float(number)):,.2f}"
         case Unit.SHARES:
             return format_shares(number)
         case Unit.PERCENT:
@@ -364,6 +371,7 @@ class MarketRow:
     basis: str  # the basis of a number, or the reason for a gap
     tooltip: str
     missing: bool
+    reading: str = ""  # the number in plain words (trend indicators)
 
 
 def market_view(report: ForensicReport) -> dict[str, Any] | None:
@@ -379,6 +387,7 @@ def market_view(report: ForensicReport) -> dict[str, Any] | None:
                 basis=m.value.note or "",
                 tooltip=m.formula + "\n" + provenance(m.value),
                 missing=m.value.value is None,
+                reading=m.reading or "",
             )
             for m in data.of_group(group)
         )
@@ -388,6 +397,8 @@ def market_view(report: ForensicReport) -> dict[str, Any] | None:
         "price": format_value(data.price),
         "valuation": rows("valuation"),
         "technicals": rows("technicals"),
+        "trend": rows("trend"),
+        "chart": price_chart_svg(data.chart) if data.chart is not None else None,
     }
 
 

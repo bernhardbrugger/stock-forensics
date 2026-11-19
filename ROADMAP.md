@@ -227,11 +227,11 @@ Step 10: tone & traffic-light rework (see ROADMAP.md). Plan first.
 ### Step 11: Technical indicators for investors
 **Goal:** Trend and momentum on weekly and monthly horizons, no day trading. Computed by us from the closes we already have, so it costs no extra API calls.
 
-- [ ] Price vs. SMA 50 and SMA 200, with the dates of the latest golden or death cross
-- [ ] RSI (14, weekly) and MACD (weekly), plain-words reading ("not stretched", "overheated")
-- [ ] Relative strength against the S&P 500 over 6 and 12 months
-- [ ] Price chart as inline SVG in the HTML (price, SMA 50/200, drawdown shading)
-- [ ] Gaps explicit when the history is too short (free Alpha Vantage keys return only 100 days)
+- [x] Price vs. SMA 50 and SMA 200, with the dates of the latest golden or death cross
+- [x] RSI (14, weekly) and MACD (weekly), plain-words reading ("not stretched", "overheated")
+- [x] Relative strength against the S&P 500 over 6 and 12 months
+- [x] Price chart as inline SVG in the HTML (price, SMA 50/200, drawdown shading)
+- [x] Gaps explicit when the history is too short (free Alpha Vantage keys return only 100 days)
 
 **Done when:** The Technicals section shows trend, momentum and relative strength in plain words, with a chart, and every number has its formula.
 
