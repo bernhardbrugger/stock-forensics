@@ -24,7 +24,9 @@ from stock_forensics.models import Source
 
 ALPHAVANTAGE_KEY_ENV = "ALPHAVANTAGE_API_KEY"
 PRICE_CHOICES = ("auto", "yfinance", "alphavantage", "none")
-YFINANCE_HINT = "yfinance is not installed (pip install 'stock-forensics[prices]')"
+# The package is not on PyPI, so the hint names the command that works in a checkout.
+INSTALL_PRICES = "uv sync --extra prices"
+YFINANCE_HINT = f"yfinance is not installed ({INSTALL_PRICES})"
 
 
 class PriceError(Exception):
@@ -196,6 +198,5 @@ def select_provider(choice: str = "auto") -> tuple[PriceProvider | None, str | N
     if os.environ.get(ALPHAVANTAGE_KEY_ENV, "").strip():
         return AlphaVantageProvider(), None
     return None, (
-        f"no price provider: install the extra (pip install 'stock-forensics[prices]') "
-        f"or set {ALPHAVANTAGE_KEY_ENV}"
+        f"no price provider: install the extra ({INSTALL_PRICES}) or set {ALPHAVANTAGE_KEY_ENV}"
     )

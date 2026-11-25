@@ -156,7 +156,7 @@ def test_yfinance_missing_package(monkeypatch: pytest.MonkeyPatch) -> None:
         raise ImportError(name)
 
     monkeypatch.setattr(prices_module, "importlib", SimpleNamespace(import_module=no_module))
-    with pytest.raises(PriceUnavailableError, match=r"stock-forensics\[prices\]"):
+    with pytest.raises(PriceUnavailableError, match=r"uv sync --extra prices"):
         YFinanceProvider()
 
 
@@ -479,7 +479,7 @@ def test_auto_prefers_yfinance_then_alpha_vantage_then_nothing(
     monkeypatch.delenv(ALPHAVANTAGE_KEY_ENV)
     provider, note = select_provider("auto")
     assert provider is None
-    assert note is not None and "stock-forensics[prices]" in note and ALPHAVANTAGE_KEY_ENV in note
+    assert note is not None and "uv sync --extra prices" in note and ALPHAVANTAGE_KEY_ENV in note
 
 
 def test_an_explicit_choice_that_cannot_be_used_is_an_error(

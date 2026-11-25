@@ -15,7 +15,7 @@ uv run forensics AAPL                                     # writes AAPL-forensic
 No API key is needed, all data comes from SEC EDGAR. Other formats: `--format md` or `--format json`;
 see [Report and CLI](docs/report.md) for all options.
 
-Optional: `pip install 'stock-forensics[prices]'` adds market value, valuation and technicals
+Optional: `uv sync --extra prices` adds market value, valuation and technicals
 (prices from Yahoo Finance via yfinance); without it everything else works unchanged. See
 [Market data](docs/market.md).
 

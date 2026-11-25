@@ -5,7 +5,7 @@ report gains a **Market data** section (valuation and technicals), and manufactu
 original Altman Z instead of the book-value Z', because the market value of equity is then known.
 
 ```bash
-pip install 'stock-forensics[prices]'      # yfinance, no key needed
+uv sync --extra prices                     # yfinance, no key needed
 uv run forensics AAPL                      # --prices auto: yfinance if installed
 uv run forensics AAPL --prices none        # SEC data only
 export ALPHAVANTAGE_API_KEY=...            # Alpha Vantage instead (see limits below)
